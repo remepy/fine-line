@@ -1,3 +1,5 @@
+import celebrationImage from "@assets/Artist's_Brush_1777619872196.png";
+
 interface SuccessModalProps {
   isOpen: boolean;
   level: number;
@@ -37,7 +39,19 @@ export function SuccessModal({ isOpen, level, onNext }: SuccessModalProps) {
           animation: "modalPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
         }}
       >
-        <div style={{ fontSize: "52px", marginBottom: "12px" }}>🎉</div>
+        <img
+          src={celebrationImage}
+          alt=""
+          aria-hidden="true"
+          style={{
+            display: "block",
+            width: "120px",
+            height: "120px",
+            margin: "0 auto 12px",
+            objectFit: "contain",
+          }}
+        />
+
         <h2
           style={{
             fontSize: "22px",
