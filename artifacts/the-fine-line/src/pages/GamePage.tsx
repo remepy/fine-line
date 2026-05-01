@@ -1,6 +1,7 @@
 import { useGame } from "../hooks/useGame";
 import { useIsRotated } from "../hooks/useIsRotated";
 import { useBackgroundMusic } from "../hooks/useBackgroundMusic";
+import { useFullscreen } from "../hooks/useFullscreen";
 import { GameImage } from "../components/GameImage";
 import { SparklesLayer } from "../components/Sparkle";
 import { SuccessModal } from "../components/SuccessModal";
@@ -24,6 +25,7 @@ export default function GamePage() {
 
   const isRotated = useIsRotated();
   const { isPlaying: musicPlaying, toggle: toggleMusic } = useBackgroundMusic();
+  useFullscreen();
   const diffCount = zones.length;
   const revealedCount = revealedMarkers.length;
   const hintButtonDisabled = loading || hintsLeft <= 0;
