@@ -1,6 +1,5 @@
 import { useRef } from "react";
 import { Zone } from "../lib/hitmap";
-import { FoundItem } from "../hooks/useGame";
 
 const MARKER_COLORS = [
   "#3b82f6",
@@ -15,11 +14,18 @@ const MARKER_COLORS = [
 
 const HINT_COLOR = "#f59e0b";
 
+interface MarkerData {
+  zone: Zone;
+  type: "found" | "hint";
+  ordinal: number | null;
+  colorIndex: number;
+}
+
 interface GameImageProps {
   src: string;
   alt: string;
   zones: Zone[];
-  foundItems: FoundItem[];
+  foundIds: number[];
   hintIds: number[];
   onTap: (x: number, y: number, el: HTMLElement) => void;
 }
@@ -28,11 +34,37 @@ export function GameImage({
   src,
   alt,
   zones,
-  foundItems,
+  foundIds,
   hintIds,
   onTap,
 }: GameImageProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const markers: MarkerData[] = [];
+
+  foundIds.forEach((id, idx) => {
+    const zone = zones.find((z) => z.id === id);
+    if (zone) {
+      markers.push({
+        zone,
+        type: "found",
+        ordinal: idx + 1,
+        colorIndex: idx % MARKER_COLORS.length,
+      });
+    }
+  });
+
+  hintIds.forEach((id) => {
+    const zone = zones.find((z) => z.id === id);
+    if (zone && !foundIds.includes(id)) {
+      markers.push({
+        zone,
+        type: "hint",
+        ordinal: null,
+        colorIndex: -1,
+      });
+    }
+  });
 
   function handlePointerDown(e: React.PointerEvent<HTMLDivElement>) {
     if (!containerRef.current) return;
@@ -70,16 +102,16 @@ export function GameImage({
         }}
       />
 
-      {/* Player-found markers — placed at the exact tap position */}
-      {foundItems.map((item, idx) => {
-        const color = MARKER_COLORS[idx % MARKER_COLORS.length];
+      {markers.map((m) => {
+        const color =
+          m.type === "hint" ? HINT_COLOR : MARKER_COLORS[m.colorIndex];
         return (
           <div
-            key={`found-${item.id}`}
+            key={`${m.type}-${m.zone.id}`}
             style={{
               position: "absolute",
-              left: `${item.relX * 100}%`,
-              top: `${item.relY * 100}%`,
+              left: `${m.zone.cx * 100}%`,
+              top: `${m.zone.cy * 100}%`,
               transform: "translate(-50%, -50%)",
               pointerEvents: "none",
               zIndex: 10,
@@ -99,49 +131,10 @@ export function GameImage({
                 fontWeight: "700",
                 boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
                 border: "2px solid rgba(255,255,255,0.8)",
-                animation: "markerFadeIn 0.3s ease-out forwards",
+                animation: "markerPop 0.25s ease-out",
               }}
             >
-              {idx + 1}
-            </div>
-          </div>
-        );
-      })}
-
-      {/* Hint markers — placed at the zone centre (no tap position available) */}
-      {hintIds.map((id) => {
-        const zone = zones.find((z) => z.id === id);
-        const alreadyFound = foundItems.some((f) => f.id === id);
-        if (!zone || alreadyFound) return null;
-        return (
-          <div
-            key={`hint-${id}`}
-            style={{
-              position: "absolute",
-              left: `${zone.cx * 100}%`,
-              top: `${zone.cy * 100}%`,
-              transform: "translate(-50%, -50%)",
-              pointerEvents: "none",
-              zIndex: 10,
-            }}
-          >
-            <div
-              style={{
-                backgroundColor: HINT_COLOR,
-                color: "white",
-                borderRadius: "50%",
-                width: "32px",
-                height: "32px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "18px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
-                border: "2px solid rgba(255,255,255,0.8)",
-                animation: "markerFadeIn 0.3s ease-out forwards",
-              }}
-            >
-              💡
+              {m.type === "hint" ? "💡" : m.ordinal}
             </div>
           </div>
         );

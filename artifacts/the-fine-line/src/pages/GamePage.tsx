@@ -10,7 +10,6 @@ export default function GamePage() {
     level,
     imageSet,
     zones,
-    foundItems,
     foundIds,
     hintIds,
     sparks,
@@ -80,7 +79,7 @@ export default function GamePage() {
                 src={`${BASE}${imageSet.original}`}
                 alt="תמונה מקורית"
                 zones={zones}
-                foundItems={foundItems}
+                foundIds={foundIds}
                 hintIds={hintIds}
                 onTap={handleTap}
               />
@@ -89,7 +88,7 @@ export default function GamePage() {
                 src={`${BASE}${imageSet.modified}`}
                 alt="תמונה שונה"
                 zones={zones}
-                foundItems={foundItems}
+                foundIds={foundIds}
                 hintIds={hintIds}
                 onTap={handleTap}
               />

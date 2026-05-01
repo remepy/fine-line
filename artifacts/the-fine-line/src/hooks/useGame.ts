@@ -16,10 +16,16 @@ export interface SparkleEffect {
   success: boolean;
 }
 
-export interface FoundItem {
-  id: number;
-  relX: number; // fraction 0-1 relative to the image, where the player tapped
-  relY: number;
+export interface GameState {
+  level: number;
+  imageSet: ImageSet | null;
+  zones: Zone[];
+  foundIds: number[];
+  hintIds: number[];
+  sparks: SparkleEffect[];
+  loading: boolean;
+  allFound: boolean;
+  totalSets: number;
 }
 
 const BASE = import.meta.env.BASE_URL;
@@ -34,7 +40,7 @@ export function useGame() {
   const [level, setLevel] = useState(1);
   const [imageSet, setImageSet] = useState<ImageSet | null>(null);
   const [zones, setZones] = useState<Zone[]>([]);
-  const [foundItems, setFoundItems] = useState<FoundItem[]>([]);
+  const [foundIds, setFoundIds] = useState<number[]>([]);
   const [hintIds, setHintIds] = useState<number[]>([]);
   const [sparks, setSparks] = useState<SparkleEffect[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,7 +59,7 @@ export function useGame() {
     async (sets: ImageSet[], used: number[], lvl: number) => {
       if (sets.length === 0) return;
       setLoading(true);
-      setFoundItems([]);
+      setFoundIds([]);
       setHintIds([]);
       setSparks([]);
 
@@ -108,45 +114,40 @@ export function useGame() {
       const absX = rect.left + tapX;
       const absY = rect.top + tapY;
 
-      const foundIds = new Set(foundItems.map((f) => f.id));
       const foundSet = new Set([...foundIds, ...hintIds]);
       const hit = checkHit(relX, relY, zones, foundSet);
 
       if (hit !== null) {
         addSpark(absX, absY, true);
-        setFoundItems((prev) => [...prev, { id: hit, relX, relY }]);
+        setFoundIds((prev) => [...prev, hit]);
       } else {
         addSpark(absX, absY, false);
       }
     },
-    [loading, foundItems, hintIds, zones, addSpark]
+    [loading, foundIds, hintIds, zones, addSpark]
   );
 
   const handleHint = useCallback(() => {
     if (loading) return;
-    const foundIds = new Set(foundItems.map((f) => f.id));
     const revealedSet = new Set([...foundIds, ...hintIds]);
     const unrevealedZone = zones.find((z) => !revealedSet.has(z.id));
     if (unrevealedZone) {
       setHintIds((prev) => [...prev, unrevealedZone.id]);
     }
-  }, [loading, foundItems, hintIds, zones]);
+  }, [loading, foundIds, hintIds, zones]);
 
   const nextLevel = useCallback(() => {
     loadLevel(allSets, usedIndices, level + 1);
   }, [allSets, usedIndices, level, loadLevel]);
 
-  const foundIds = foundItems.map((f) => f.id);
-
   const allFound =
     zones.length > 0 &&
-    foundItems.length + hintIds.length >= zones.length;
+    foundIds.length + hintIds.length >= zones.length;
 
   return {
     level,
     imageSet,
     zones,
-    foundItems,
     foundIds,
     hintIds,
     sparks,
