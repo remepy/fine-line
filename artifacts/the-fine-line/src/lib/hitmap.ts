@@ -123,7 +123,7 @@ export function checkHit(
   tapY: number,
   zones: Zone[],
   foundIds: Set<number>,
-  tolerance = 0.04
+  tolerance = 0.02
 ): number | null {
   let bestId: number | null = null;
   let bestDist = Infinity;
