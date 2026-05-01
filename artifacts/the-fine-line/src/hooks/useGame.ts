@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { parseHitmap, Zone, checkHit } from "../lib/hitmap";
+import { parseHitmap, HitmapData, checkHit } from "../lib/hitmap";
 
 export interface ImageSet {
   id: string;
@@ -18,7 +18,7 @@ export interface SparkleEffect {
 
 export interface RevealedMarker {
   id: number;
-  tapX: number; // fraction 0-1 where the reveal originated (tap position or zone centre for hints)
+  tapX: number;
   tapY: number;
   type: "found" | "hint";
 }
@@ -34,7 +34,7 @@ export function useGame() {
   const [usedIndices, setUsedIndices] = useState<number[]>([]);
   const [level, setLevel] = useState(1);
   const [imageSet, setImageSet] = useState<ImageSet | null>(null);
-  const [zones, setZones] = useState<Zone[]>([]);
+  const [hitmapData, setHitmapData] = useState<HitmapData | null>(null);
   const [revealedMarkers, setRevealedMarkers] = useState<RevealedMarker[]>([]);
   const [sparks, setSparks] = useState<SparkleEffect[]>([]);
   const [loading, setLoading] = useState(true);
@@ -51,6 +51,7 @@ export function useGame() {
     async (sets: ImageSet[], used: number[], lvl: number) => {
       if (sets.length === 0) return;
       setLoading(true);
+      setHitmapData(null);
       setRevealedMarkers([]);
       setSparks([]);
 
@@ -68,10 +69,9 @@ export function useGame() {
 
       try {
         const parsed = await parseHitmap(buildUrl(set.hitmap));
-        setZones(parsed);
+        setHitmapData(parsed);
       } catch (e) {
         console.error("hitmap parse error", e);
-        setZones([]);
       }
 
       setLoading(false);
@@ -95,15 +95,15 @@ export function useGame() {
 
   const handleTap = useCallback(
     (tapX: number, tapY: number, imageEl: HTMLElement) => {
-      if (loading) return;
+      if (loading || !hitmapData) return;
       const rect = imageEl.getBoundingClientRect();
       const relX = tapX / rect.width;
       const relY = tapY / rect.height;
       const absX = rect.left + tapX;
       const absY = rect.top + tapY;
 
-      const revealedSet = new Set(revealedMarkers.map((m) => m.id));
-      const hit = checkHit(relX, relY, zones, revealedSet);
+      const foundIds = new Set(revealedMarkers.map((m) => m.id));
+      const hit = checkHit(relX, relY, rect.width, rect.height, hitmapData, foundIds);
 
       if (hit !== null) {
         addSpark(absX, absY, true);
@@ -115,13 +115,13 @@ export function useGame() {
         addSpark(absX, absY, false);
       }
     },
-    [loading, revealedMarkers, zones, addSpark]
+    [loading, hitmapData, revealedMarkers, addSpark]
   );
 
   const handleHint = useCallback(() => {
-    if (loading) return;
-    const revealedSet = new Set(revealedMarkers.map((m) => m.id));
-    const unrevealedZone = zones.find((z) => !revealedSet.has(z.id));
+    if (loading || !hitmapData) return;
+    const foundIds = new Set(revealedMarkers.map((m) => m.id));
+    const unrevealedZone = hitmapData.zones.find((z) => !foundIds.has(z.id));
     if (unrevealedZone) {
       setRevealedMarkers((prev) => [
         ...prev,
@@ -133,14 +133,14 @@ export function useGame() {
         },
       ]);
     }
-  }, [loading, revealedMarkers, zones]);
+  }, [loading, hitmapData, revealedMarkers]);
 
   const nextLevel = useCallback(() => {
     loadLevel(allSets, usedIndices, level + 1);
   }, [allSets, usedIndices, level, loadLevel]);
 
-  const allFound =
-    zones.length > 0 && revealedMarkers.length >= zones.length;
+  const zones = hitmapData?.zones ?? [];
+  const allFound = zones.length > 0 && revealedMarkers.length >= zones.length;
 
   const [showSuccess, setShowSuccess] = useState(false);
 
