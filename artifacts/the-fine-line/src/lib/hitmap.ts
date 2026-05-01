@@ -9,10 +9,12 @@ export interface Zone {
   pixelCount: number;
 }
 
+// In the hitmap, white/bright regions mark differences; everything else is background.
 function isBackground(r: number, g: number, b: number, a: number): boolean {
   if (a < 30) return true;
-  if (r > 200 && g > 200 && b > 200) return true;
-  return false;
+  // A pixel is a difference zone only if it's bright white/near-white
+  if (r > 200 && g > 200 && b > 200) return false;
+  return true;
 }
 
 export async function parseHitmap(hitmapUrl: string): Promise<Zone[]> {
@@ -76,7 +78,7 @@ export async function parseHitmap(hitmapUrl: string): Promise<Zone[]> {
           }
         }
 
-        if (pixels.length < 8) continue;
+        if (pixels.length < 4) continue;
 
         let minX = Infinity,
           minY = Infinity,
