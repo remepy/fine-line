@@ -49,20 +49,32 @@ A spot-the-difference mobile web game in Hebrew with RTL support, targeting peop
 
 ### Hitmap Format
 
-- White pixels (`R>200, G>200, B>200`) = background
-- Transparent pixels (`alpha < 30`) = background
-- Any other colored pixel = part of a difference zone
-- Connected colored pixels are grouped into zones via BFS
-- Zones with fewer than 8 pixels are filtered as noise
+- White pixels (`R>200, G>200, B>200`, `alpha >= 30`) = difference zone mask
+- Anything else (including transparent pixels) = background
+- Connected white pixels are grouped into zones via BFS (8-neighbour)
+- Zones with fewer than 4 pixels are filtered as noise
+- Hit detection (`src/lib/hitmap.ts:checkHit`) reads the raw pixel data and registers a hit only when there is a white mask pixel within a **5 display-pixel radius** of the tap (scaled to hitmap-pixel space via the displayed image dimensions). This is fully pixel-accurate, not bounding-box based.
+
+### Layout & Orientation
+
+- **Edge-to-edge images** filling the entire phone frame; UI lives as small floating overlays on top:
+  - Top-right (RTL leading): title + level pill
+  - Top-center: progress dots
+  - Top-left (RTL trailing): score pill
+  - Bottom-right: subtitle
+  - Bottom-left: amber hint FAB with hint counter badge
+- Safe-area insets via `env(safe-area-inset-*)` keep overlays clear of notches.
+- **Forced landscape**: when the device is in portrait orientation (`@media (orientation: portrait) and (max-width: 900px)`), the entire `.rotation-wrapper` is CSS-rotated 90° via `transform: rotate(90deg) translate(0, -100%)` so the user sees the game sideways and must physically rotate the phone. The `useIsRotated` hook tracks this state, and `GameImage.handlePointerDown` converts the visual tap coords back to natural image coords when rotated.
+- The viewport meta uses `viewport-fit=cover` and PWA meta tags for true full-screen on iOS/Android.
 
 ### Game Features
 
 - Hebrew RTL UI
-- Landscape phone-frame layout (emulates smartphone on desktop)
-- Sparkle animation on correct tap (300ms)
-- Ordinal numbered markers for player-found differences
-- Hint button (💡) with special amber markers for revealed differences
-- Progress dots track identified differences
-- Success popup with "לשלב הבא" / "יציאה מהמשחק" buttons
-- Generous hit detection for tremor (4% tolerance around each zone bounding box)
-- Session-level randomization of image sets (no repeats)
+- Sparkle animation on correct tap, X-mark on miss (350ms)
+- Ordinal numbered markers for player-found differences (8 rotating colors)
+- Hint button (💡) reveals a difference with an amber marker, sharing the same numbered sequence as player taps
+- Progress dots track identified differences (green=found, amber=hinted)
+- Success popup appears 2000ms after the last difference is revealed
+- Buttons: "לשלב הבא" / "יציאה מהמשחק"
+- Markers slide+fade from tap position to the zone centroid (cubic-bezier easing)
+- Session-level randomization of image sets (no repeats until exhausted)

@@ -1,4 +1,5 @@
 import { useGame } from "../hooks/useGame";
+import { useIsRotated } from "../hooks/useIsRotated";
 import { GameImage } from "../components/GameImage";
 import { SparklesLayer } from "../components/Sparkle";
 import { SuccessModal } from "../components/SuccessModal";
@@ -20,92 +21,117 @@ export default function GamePage() {
     nextLevel,
   } = useGame();
 
+  const isRotated = useIsRotated();
   const diffCount = zones.length;
   const revealedCount = revealedMarkers.length;
   const hintButtonDisabled = loading || hintsLeft <= 0;
 
   return (
-    <div className="outer-wrapper">
-      <div className="phone-frame" dir="rtl">
-        <header className="game-header">
-          <div className="header-top">
-            <div className="title-group">
-              <h1 className="game-title">הקו הדק</h1>
+    <>
+      <div className="outer-wrapper" />
+
+      <div className="rotation-wrapper">
+        <div className="phone-frame" dir="rtl">
+          <main className="images-area">
+            {loading || !imageSet ? (
+              <div className="loading-state">
+                <div className="spinner" />
+                <p>טוען תמונות...</p>
+              </div>
+            ) : (
+              <>
+                <div className="image-half">
+                  <GameImage
+                    src={`${BASE}${imageSet.original}`}
+                    alt="תמונה מקורית"
+                    zones={zones}
+                    revealedMarkers={revealedMarkers}
+                    isRotated={isRotated}
+                    onTap={handleTap}
+                  />
+                </div>
+                <div className="divider-line" />
+                <div className="image-half">
+                  <GameImage
+                    src={`${BASE}${imageSet.modified}`}
+                    alt="תמונה שונה"
+                    zones={zones}
+                    revealedMarkers={revealedMarkers}
+                    isRotated={isRotated}
+                    onTap={handleTap}
+                  />
+                </div>
+              </>
+            )}
+          </main>
+
+          {/* ─── Floating overlays ─── */}
+
+          {/* Top-right (RTL leading): title + level */}
+          <div className="overlay overlay-title">
+            <div className="title-pill">
+              <span className="game-title">הקו הדק</span>
               <span className="level-badge">שלב {level}</span>
             </div>
-            <button
-              className="hint-btn"
-              onClick={handleHint}
-              disabled={hintButtonDisabled}
-              title="רמז"
-            >
-              <span className="hint-icon">💡</span>
-              {hintsLeft > 0 && (
-                <span className="hint-count">{hintsLeft}</span>
-              )}
-            </button>
           </div>
-          <p className="subtitle">
-            {loading
-              ? "טוען..."
-              : diffCount > 0
-              ? `זהו ${diffCount} הבדלים בין התמונות`
-              : "זהו את ההבדלים בין שתי התמונות"}
-          </p>
 
-          <div className="progress-row">
-            {zones.map((z) => {
-              const marker = revealedMarkers.find((m) => m.id === z.id);
-              const isFound = marker?.type === "found";
-              const isHinted = marker?.type === "hint";
-              return (
-                <div
-                  key={z.id}
-                  className={`progress-dot ${isFound ? "found" : isHinted ? "hinted" : ""}`}
-                />
-              );
-            })}
-          </div>
-        </header>
-
-        <main className="images-area">
-          {loading || !imageSet ? (
-            <div className="loading-state">
-              <div className="spinner" />
-              <p>טוען תמונות...</p>
+          {/* Top-center: progress dots */}
+          {!loading && diffCount > 0 && (
+            <div className="overlay overlay-progress">
+              <div className="progress-row">
+                {zones.map((z) => {
+                  const marker = revealedMarkers.find((m) => m.id === z.id);
+                  const isFound = marker?.type === "found";
+                  const isHinted = marker?.type === "hint";
+                  return (
+                    <div
+                      key={z.id}
+                      className={`progress-dot ${
+                        isFound ? "found" : isHinted ? "hinted" : ""
+                      }`}
+                    />
+                  );
+                })}
+              </div>
             </div>
-          ) : (
-            <>
-              <GameImage
-                src={`${BASE}${imageSet.original}`}
-                alt="תמונה מקורית"
-                zones={zones}
-                revealedMarkers={revealedMarkers}
-                onTap={handleTap}
-              />
-              <div className="divider-line" />
-              <GameImage
-                src={`${BASE}${imageSet.modified}`}
-                alt="תמונה שונה"
-                zones={zones}
-                revealedMarkers={revealedMarkers}
-                onTap={handleTap}
-              />
-            </>
           )}
-        </main>
 
-        <footer className="game-footer">
-          <div className="score-display">
-            <span className="score-label">זיהית:</span>
-            <span className="score-value">
-              {revealedCount} / {diffCount}
-            </span>
-          </div>
-          <p className="tap-hint">לחץ על כל הבדל בכל אחת מהתמונות</p>
-        </footer>
+          {/* Top-left (RTL trailing): score */}
+          {!loading && diffCount > 0 && (
+            <div className="overlay overlay-score">
+              <div className="score-pill" dir="ltr">
+                <span className="score-value">{revealedCount}</span>
+                <span className="score-sep">/</span>
+                <span className="score-total">{diffCount}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Bottom-right (RTL leading): subtitle */}
+          {!loading && diffCount > 0 && (
+            <div className="overlay-subtitle">
+              זהו {diffCount} הבדלים בין התמונות
+            </div>
+          )}
+
+          {/* Bottom-left (RTL trailing): hint FAB */}
+          <button
+            className="hint-fab"
+            onClick={handleHint}
+            disabled={hintButtonDisabled}
+            title="רמז"
+            aria-label="רמז"
+          >
+            <span className="hint-icon">💡</span>
+            {hintsLeft > 0 && <span className="hint-count">{hintsLeft}</span>}
+          </button>
+        </div>
       </div>
 
+      {/* SparklesLayer and SuccessModal live OUTSIDE the rotation-wrapper so
+          they use viewport (not rotated) coordinates and form their own
+          top-level stacking contexts. Modal must come after SparklesLayer in
+          DOM order so it always paints above. */}
       <SparklesLayer sparks={sparks} />
 
       <SuccessModal
@@ -113,6 +139,6 @@ export default function GamePage() {
         level={level}
         onNext={nextLevel}
       />
-    </div>
+    </>
   );
 }

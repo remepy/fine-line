@@ -94,25 +94,26 @@ export function useGame() {
   }, []);
 
   const handleTap = useCallback(
-    (tapX: number, tapY: number, imageEl: HTMLElement) => {
+    (
+      relX: number,
+      relY: number,
+      naturalW: number,
+      naturalH: number,
+      viewportX: number,
+      viewportY: number
+    ) => {
       if (loading || !hitmapData) return;
-      const rect = imageEl.getBoundingClientRect();
-      const relX = tapX / rect.width;
-      const relY = tapY / rect.height;
-      const absX = rect.left + tapX;
-      const absY = rect.top + tapY;
-
       const foundIds = new Set(revealedMarkers.map((m) => m.id));
-      const hit = checkHit(relX, relY, rect.width, rect.height, hitmapData, foundIds);
+      const hit = checkHit(relX, relY, naturalW, naturalH, hitmapData, foundIds);
 
       if (hit !== null) {
-        addSpark(absX, absY, true);
+        addSpark(viewportX, viewportY, true);
         setRevealedMarkers((prev) => [
           ...prev,
           { id: hit, tapX: relX, tapY: relY, type: "found" },
         ]);
       } else {
-        addSpark(absX, absY, false);
+        addSpark(viewportX, viewportY, false);
       }
     },
     [loading, hitmapData, revealedMarkers, addSpark]

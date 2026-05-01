@@ -22,10 +22,20 @@ interface MarkerProps {
   color: string;
   tapX: number;
   tapY: number;
+  isRotated: boolean;
   containerRef: React.RefObject<HTMLDivElement | null>;
 }
 
-function Marker({ zone, type, ordinal, color, tapX, tapY, containerRef }: MarkerProps) {
+function Marker({
+  zone,
+  type,
+  ordinal,
+  color,
+  tapX,
+  tapY,
+  isRotated,
+  containerRef,
+}: MarkerProps) {
   const [settled, setSettled] = useState(false);
 
   useEffect(() => {
@@ -36,8 +46,14 @@ function Marker({ zone, type, ordinal, color, tapX, tapY, containerRef }: Marker
   }, []);
 
   const rect = containerRef.current?.getBoundingClientRect();
-  const dx = rect ? (tapX - zone.cx) * rect.width : 0;
-  const dy = rect ? (tapY - zone.cy) * rect.height : 0;
+  // The marker lives inside the (rotated) container, so its translate is
+  // applied in the container's *natural* (un-rotated) local pixel space.
+  // When the container is rotated 90° CW, visual width = natural height
+  // and vice versa, so we must use the swapped dimensions here.
+  const naturalW = rect ? (isRotated ? rect.height : rect.width) : 0;
+  const naturalH = rect ? (isRotated ? rect.width : rect.height) : 0;
+  const dx = (tapX - zone.cx) * naturalW;
+  const dy = (tapY - zone.cy) * naturalH;
 
   const transform = settled
     ? "translate(-50%, -50%) scale(1)"
@@ -84,7 +100,15 @@ interface GameImageProps {
   alt: string;
   zones: Zone[];
   revealedMarkers: RevealedMarker[];
-  onTap: (x: number, y: number, el: HTMLElement) => void;
+  isRotated: boolean;
+  onTap: (
+    relX: number,
+    relY: number,
+    naturalW: number,
+    naturalH: number,
+    viewportX: number,
+    viewportY: number
+  ) => void;
 }
 
 export function GameImage({
@@ -92,6 +116,7 @@ export function GameImage({
   alt,
   zones,
   revealedMarkers,
+  isRotated,
   onTap,
 }: GameImageProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -99,9 +124,31 @@ export function GameImage({
   function handlePointerDown(e: React.PointerEvent<HTMLDivElement>) {
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    onTap(x, y, containerRef.current);
+    // Visual-space offset from the visual top-left of the (possibly rotated) container
+    const vx = e.clientX - rect.left;
+    const vy = e.clientY - rect.top;
+
+    let relX: number;
+    let relY: number;
+    let naturalW: number;
+    let naturalH: number;
+
+    if (isRotated) {
+      // Container is rotated 90° clockwise via CSS.
+      // Visual width = natural height; visual height = natural width.
+      // Mapping: naturalX = vy, naturalY = visualWidth - vx
+      naturalW = rect.height;
+      naturalH = rect.width;
+      relX = vy / rect.height;
+      relY = 1 - vx / rect.width;
+    } else {
+      naturalW = rect.width;
+      naturalH = rect.height;
+      relX = vx / rect.width;
+      relY = vy / rect.height;
+    }
+
+    onTap(relX, relY, naturalW, naturalH, e.clientX, e.clientY);
   }
 
   return (
@@ -112,10 +159,10 @@ export function GameImage({
         cursor: "crosshair",
         userSelect: "none",
         touchAction: "none",
-        flex: "1 1 0",
-        minWidth: 0,
-        minHeight: 0,
+        height: "100%",
         aspectRatio: "1 / 1",
+        maxWidth: "100%",
+        maxHeight: "100%",
       }}
       onPointerDown={handlePointerDown}
     >
@@ -126,9 +173,8 @@ export function GameImage({
         style={{
           width: "100%",
           height: "100%",
-          objectFit: "contain",
+          objectFit: "cover",
           display: "block",
-          borderRadius: "8px",
         }}
       />
 
@@ -148,6 +194,7 @@ export function GameImage({
             color={color}
             tapX={marker.tapX}
             tapY={marker.tapY}
+            isRotated={isRotated}
             containerRef={containerRef}
           />
         );
