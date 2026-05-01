@@ -14,6 +14,13 @@ export interface HitmapData {
   width: number;
   height: number;
   pixels: Uint8ClampedArray;
+  /**
+   * For every pixel index (y * width + x), the id of the zone that owns it,
+   * or -1 if the pixel is background. This is the authoritative "which zone
+   * does this pixel belong to" lookup — bounding boxes can overlap between
+   * unrelated zones and must NEVER be used for this question.
+   */
+  pixelZoneIds: Int16Array;
 }
 
 // White/near-white = difference zone; everything else = background
@@ -35,7 +42,9 @@ export async function parseHitmap(hitmapUrl: string): Promise<HitmapData> {
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const { data, width, height } = imageData;
       const visited = new Uint8Array(width * height);
+      const pixelZoneIds = new Int16Array(width * height).fill(-1);
       const zones: Zone[] = [];
+      let nextZoneId = 0;
 
       for (let i = 0; i < width * height; i++) {
         const r = data[i * 4];
@@ -47,6 +56,7 @@ export async function parseHitmap(hitmapUrl: string): Promise<HitmapData> {
         const queue: number[] = [i];
         const pixels: number[] = [];
         visited[i] = 1;
+        const zoneId = nextZoneId;
 
         while (queue.length > 0) {
           const curr = queue.shift()!;
@@ -92,10 +102,11 @@ export async function parseHitmap(hitmapUrl: string): Promise<HitmapData> {
           if (py > maxY) maxY = py;
           sumX += px;
           sumY += py;
+          pixelZoneIds[p] = zoneId;
         }
 
         zones.push({
-          id: zones.length,
+          id: zoneId,
           cx: sumX / pixels.length / width,
           cy: sumY / pixels.length / height,
           x1: minX / width,
@@ -104,11 +115,14 @@ export async function parseHitmap(hitmapUrl: string): Promise<HitmapData> {
           y2: maxY / height,
           pixelCount: pixels.length,
         });
+        nextZoneId++;
       }
 
+      // Sort by size for marker color rotation, but keep zone.id stable so
+      // pixelZoneIds remains a valid lookup.
       zones.sort((a, b) => b.pixelCount - a.pixelCount);
 
-      resolve({ zones, width, height, pixels: data });
+      resolve({ zones, width, height, pixels: data, pixelZoneIds });
     };
     img.onerror = (e) => reject(e);
     img.src = hitmapUrl;
@@ -132,44 +146,47 @@ export function checkHit(
   foundIds: Set<number>,
   screenTolerance = 5
 ): number | null {
-  const { zones, width: hw, height: hh, pixels } = hitmapData;
+  const { width: hw, height: hh, pixelZoneIds } = hitmapData;
 
-  // Convert display-space tolerance to hitmap-space pixels
+  // Convert display-space tolerance to hitmap-space pixels.
   const tolHX = screenTolerance * (hw / displayW);
   const tolHY = screenTolerance * (hh / displayH);
 
-  // Tap position in hitmap pixels
+  // Tap position in hitmap pixels.
   const tapHX = tapRelX * hw;
   const tapHY = tapRelY * hh;
 
   const maxR = Math.ceil(Math.max(tolHX, tolHY));
 
+  // Find the CLOSEST mask pixel to the tap (in display-space distance) and
+  // return whichever zone actually owns it. This avoids any guesswork about
+  // which zone "wins" when multiple zones have white pixels in the search
+  // disc — the nearest mask pixel always wins.
+  let bestZoneId = -1;
+  let bestDist2 = Infinity;
+
   for (let dy = -maxR; dy <= maxR; dy++) {
     for (let dx = -maxR; dx <= maxR; dx++) {
-      // Elliptical check so display-space circle stays circular
-      if ((dx / tolHX) ** 2 + (dy / tolHY) ** 2 > 1) continue;
+      // Elliptical check so the display-space tolerance is a real circle.
+      const ndx = dx / tolHX;
+      const ndy = dy / tolHY;
+      const d2 = ndx * ndx + ndy * ndy;
+      if (d2 > 1) continue;
 
       const px = Math.round(tapHX + dx);
       const py = Math.round(tapHY + dy);
       if (px < 0 || px >= hw || py < 0 || py >= hh) continue;
 
-      const i = (py * hw + px) * 4;
-      if (!isWhite(pixels[i], pixels[i + 1], pixels[i + 2], pixels[i + 3])) continue;
+      const zoneId = pixelZoneIds[py * hw + px];
+      if (zoneId < 0) continue;
+      if (foundIds.has(zoneId)) continue;
 
-      // White pixel found — which zone owns it?
-      for (const zone of zones) {
-        if (foundIds.has(zone.id)) continue;
-        if (
-          px >= zone.x1 * hw &&
-          px <= zone.x2 * hw &&
-          py >= zone.y1 * hh &&
-          py <= zone.y2 * hh
-        ) {
-          return zone.id;
-        }
+      if (d2 < bestDist2) {
+        bestDist2 = d2;
+        bestZoneId = zoneId;
       }
     }
   }
 
-  return null;
+  return bestZoneId >= 0 ? bestZoneId : null;
 }
