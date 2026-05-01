@@ -15,7 +15,7 @@ export default function GamePage() {
     hintIds,
     sparks,
     loading,
-    allFound,
+    showSuccess,
     handleTap,
     handleHint,
     nextLevel,
@@ -111,7 +111,7 @@ export default function GamePage() {
       <SparklesLayer sparks={sparks} />
 
       <SuccessModal
-        isOpen={allFound && !loading}
+        isOpen={showSuccess}
         level={level}
         onNext={nextLevel}
       />

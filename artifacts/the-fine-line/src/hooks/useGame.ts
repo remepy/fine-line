@@ -141,6 +141,17 @@ export function useGame() {
     zones.length > 0 &&
     foundIds.length + hintIds.length >= zones.length;
 
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  useEffect(() => {
+    if (!allFound) {
+      setShowSuccess(false);
+      return;
+    }
+    const t = setTimeout(() => setShowSuccess(true), 2000);
+    return () => clearTimeout(t);
+  }, [allFound]);
+
   return {
     level,
     imageSet,
@@ -151,6 +162,7 @@ export function useGame() {
     sparks,
     loading,
     allFound,
+    showSuccess,
     totalSets: allSets.length,
     handleTap,
     handleHint,
