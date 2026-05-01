@@ -10,20 +10,19 @@ export default function GamePage() {
     level,
     imageSet,
     zones,
-    foundMarkers,
-    foundIds,
-    hintIds,
+    revealedMarkers,
     sparks,
     loading,
     showSuccess,
+    hintsLeft,
     handleTap,
     handleHint,
     nextLevel,
   } = useGame();
 
   const diffCount = zones.length;
-  const revealedCount = foundIds.length + hintIds.length;
-  const hintsLeft = diffCount - foundIds.length - hintIds.length;
+  const revealedCount = revealedMarkers.length;
+  const hintButtonDisabled = loading || hintsLeft <= 0;
 
   return (
     <div className="outer-wrapper">
@@ -37,7 +36,7 @@ export default function GamePage() {
             <button
               className="hint-btn"
               onClick={handleHint}
-              disabled={loading || hintsLeft <= 0}
+              disabled={hintButtonDisabled}
               title="רמז"
             >
               <span className="hint-icon">💡</span>
@@ -56,8 +55,9 @@ export default function GamePage() {
 
           <div className="progress-row">
             {zones.map((z) => {
-              const isFound = foundIds.includes(z.id);
-              const isHinted = hintIds.includes(z.id);
+              const marker = revealedMarkers.find((m) => m.id === z.id);
+              const isFound = marker?.type === "found";
+              const isHinted = marker?.type === "hint";
               return (
                 <div
                   key={z.id}
@@ -80,8 +80,7 @@ export default function GamePage() {
                 src={`${BASE}${imageSet.original}`}
                 alt="תמונה מקורית"
                 zones={zones}
-                foundMarkers={foundMarkers}
-                hintIds={hintIds}
+                revealedMarkers={revealedMarkers}
                 onTap={handleTap}
               />
               <div className="divider-line" />
@@ -89,8 +88,7 @@ export default function GamePage() {
                 src={`${BASE}${imageSet.modified}`}
                 alt="תמונה שונה"
                 zones={zones}
-                foundMarkers={foundMarkers}
-                hintIds={hintIds}
+                revealedMarkers={revealedMarkers}
                 onTap={handleTap}
               />
             </>

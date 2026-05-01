@@ -16,10 +16,11 @@ export interface SparkleEffect {
   success: boolean;
 }
 
-export interface FoundMarker {
+export interface RevealedMarker {
   id: number;
-  tapX: number; // fraction 0-1 relative to image where the tap landed
+  tapX: number; // fraction 0-1 where the reveal originated (tap position or zone centre for hints)
   tapY: number;
+  type: "found" | "hint";
 }
 
 const BASE = import.meta.env.BASE_URL;
@@ -34,8 +35,7 @@ export function useGame() {
   const [level, setLevel] = useState(1);
   const [imageSet, setImageSet] = useState<ImageSet | null>(null);
   const [zones, setZones] = useState<Zone[]>([]);
-  const [foundMarkers, setFoundMarkers] = useState<FoundMarker[]>([]);
-  const [hintIds, setHintIds] = useState<number[]>([]);
+  const [revealedMarkers, setRevealedMarkers] = useState<RevealedMarker[]>([]);
   const [sparks, setSparks] = useState<SparkleEffect[]>([]);
   const [loading, setLoading] = useState(true);
   const sparkIdRef = useRef(0);
@@ -43,9 +43,7 @@ export function useGame() {
   useEffect(() => {
     fetch(buildUrl("image-sets/manifest.json"))
       .then((r) => r.json())
-      .then((data: ImageSet[]) => {
-        setAllSets(data);
-      })
+      .then((data: ImageSet[]) => setAllSets(data))
       .catch(console.error);
   }, []);
 
@@ -53,8 +51,7 @@ export function useGame() {
     async (sets: ImageSet[], used: number[], lvl: number) => {
       if (sets.length === 0) return;
       setLoading(true);
-      setFoundMarkers([]);
-      setHintIds([]);
+      setRevealedMarkers([]);
       setSparks([]);
 
       let remaining = sets.map((_, i) => i).filter((i) => !used.includes(i));
@@ -105,41 +102,45 @@ export function useGame() {
       const absX = rect.left + tapX;
       const absY = rect.top + tapY;
 
-      const foundIds = foundMarkers.map((m) => m.id);
-      const foundSet = new Set([...foundIds, ...hintIds]);
-      const hit = checkHit(relX, relY, zones, foundSet);
+      const revealedSet = new Set(revealedMarkers.map((m) => m.id));
+      const hit = checkHit(relX, relY, zones, revealedSet);
 
       if (hit !== null) {
         addSpark(absX, absY, true);
-        setFoundMarkers((prev) => [
+        setRevealedMarkers((prev) => [
           ...prev,
-          { id: hit, tapX: relX, tapY: relY },
+          { id: hit, tapX: relX, tapY: relY, type: "found" },
         ]);
       } else {
         addSpark(absX, absY, false);
       }
     },
-    [loading, foundMarkers, hintIds, zones, addSpark]
+    [loading, revealedMarkers, zones, addSpark]
   );
 
   const handleHint = useCallback(() => {
     if (loading) return;
-    const foundIds = foundMarkers.map((m) => m.id);
-    const revealedSet = new Set([...foundIds, ...hintIds]);
+    const revealedSet = new Set(revealedMarkers.map((m) => m.id));
     const unrevealedZone = zones.find((z) => !revealedSet.has(z.id));
     if (unrevealedZone) {
-      setHintIds((prev) => [...prev, unrevealedZone.id]);
+      setRevealedMarkers((prev) => [
+        ...prev,
+        {
+          id: unrevealedZone.id,
+          tapX: unrevealedZone.cx,
+          tapY: unrevealedZone.cy,
+          type: "hint",
+        },
+      ]);
     }
-  }, [loading, foundMarkers, hintIds, zones]);
+  }, [loading, revealedMarkers, zones]);
 
   const nextLevel = useCallback(() => {
     loadLevel(allSets, usedIndices, level + 1);
   }, [allSets, usedIndices, level, loadLevel]);
 
-  const foundIds = foundMarkers.map((m) => m.id);
   const allFound =
-    zones.length > 0 &&
-    foundIds.length + hintIds.length >= zones.length;
+    zones.length > 0 && revealedMarkers.length >= zones.length;
 
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -152,17 +153,18 @@ export function useGame() {
     return () => clearTimeout(t);
   }, [allFound]);
 
+  const hintsLeft = zones.length - revealedMarkers.length;
+
   return {
     level,
     imageSet,
     zones,
-    foundMarkers,
-    foundIds,
-    hintIds,
+    revealedMarkers,
     sparks,
     loading,
     allFound,
     showSuccess,
+    hintsLeft,
     totalSets: allSets.length,
     handleTap,
     handleHint,

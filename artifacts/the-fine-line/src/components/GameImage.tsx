@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { Zone } from "../lib/hitmap";
-import { FoundMarker } from "../hooks/useGame";
+import { RevealedMarker } from "../hooks/useGame";
 
 const MARKER_COLORS = [
   "#3b82f6",
@@ -18,9 +18,9 @@ const HINT_COLOR = "#f59e0b";
 interface MarkerProps {
   zone: Zone;
   type: "found" | "hint";
-  ordinal: number | null;
+  ordinal: number;
   color: string;
-  tapX: number; // fraction 0-1, where the tap landed (relative to image)
+  tapX: number;
   tapY: number;
   containerRef: React.RefObject<HTMLDivElement | null>;
 }
@@ -73,7 +73,7 @@ function Marker({ zone, type, ordinal, color, tapX, tapY, containerRef }: Marker
           border: "2px solid rgba(255,255,255,0.8)",
         }}
       >
-        {type === "hint" ? "💡" : ordinal}
+        {ordinal}
       </div>
     </div>
   );
@@ -83,8 +83,7 @@ interface GameImageProps {
   src: string;
   alt: string;
   zones: Zone[];
-  foundMarkers: FoundMarker[];
-  hintIds: number[];
+  revealedMarkers: RevealedMarker[];
   onTap: (x: number, y: number, el: HTMLElement) => void;
 }
 
@@ -92,8 +91,7 @@ export function GameImage({
   src,
   alt,
   zones,
-  foundMarkers,
-  hintIds,
+  revealedMarkers,
   onTap,
 }: GameImageProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -134,41 +132,26 @@ export function GameImage({
         }}
       />
 
-      {foundMarkers.map((marker, idx) => {
+      {revealedMarkers.map((marker, idx) => {
         const zone = zones.find((z) => z.id === marker.id);
         if (!zone) return null;
+        const color =
+          marker.type === "hint"
+            ? HINT_COLOR
+            : MARKER_COLORS[idx % MARKER_COLORS.length];
         return (
           <Marker
-            key={`found-${marker.id}`}
+            key={`marker-${marker.id}`}
             zone={zone}
-            type="found"
+            type={marker.type}
             ordinal={idx + 1}
-            color={MARKER_COLORS[idx % MARKER_COLORS.length]}
+            color={color}
             tapX={marker.tapX}
             tapY={marker.tapY}
             containerRef={containerRef}
           />
         );
       })}
-
-      {hintIds
-        .filter((id) => !foundMarkers.some((m) => m.id === id))
-        .map((id) => {
-          const zone = zones.find((z) => z.id === id);
-          if (!zone) return null;
-          return (
-            <Marker
-              key={`hint-${id}`}
-              zone={zone}
-              type="hint"
-              ordinal={null}
-              color={HINT_COLOR}
-              tapX={zone.cx}
-              tapY={zone.cy}
-              containerRef={containerRef}
-            />
-          );
-        })}
     </div>
   );
 }
