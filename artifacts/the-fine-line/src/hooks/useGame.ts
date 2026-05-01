@@ -16,16 +16,10 @@ export interface SparkleEffect {
   success: boolean;
 }
 
-export interface GameState {
-  level: number;
-  imageSet: ImageSet | null;
-  zones: Zone[];
-  foundIds: number[];
-  hintIds: number[];
-  sparks: SparkleEffect[];
-  loading: boolean;
-  allFound: boolean;
-  totalSets: number;
+export interface FoundMarker {
+  id: number;
+  tapX: number; // fraction 0-1 relative to image where the tap landed
+  tapY: number;
 }
 
 const BASE = import.meta.env.BASE_URL;
@@ -40,7 +34,7 @@ export function useGame() {
   const [level, setLevel] = useState(1);
   const [imageSet, setImageSet] = useState<ImageSet | null>(null);
   const [zones, setZones] = useState<Zone[]>([]);
-  const [foundIds, setFoundIds] = useState<number[]>([]);
+  const [foundMarkers, setFoundMarkers] = useState<FoundMarker[]>([]);
   const [hintIds, setHintIds] = useState<number[]>([]);
   const [sparks, setSparks] = useState<SparkleEffect[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,7 +53,7 @@ export function useGame() {
     async (sets: ImageSet[], used: number[], lvl: number) => {
       if (sets.length === 0) return;
       setLoading(true);
-      setFoundIds([]);
+      setFoundMarkers([]);
       setHintIds([]);
       setSparks([]);
 
@@ -94,16 +88,13 @@ export function useGame() {
     }
   }, [allSets, loadLevel]);
 
-  const addSpark = useCallback(
-    (x: number, y: number, success: boolean) => {
-      const id = ++sparkIdRef.current;
-      setSparks((prev) => [...prev, { id, x, y, success }]);
-      setTimeout(() => {
-        setSparks((prev) => prev.filter((s) => s.id !== id));
-      }, 350);
-    },
-    []
-  );
+  const addSpark = useCallback((x: number, y: number, success: boolean) => {
+    const id = ++sparkIdRef.current;
+    setSparks((prev) => [...prev, { id, x, y, success }]);
+    setTimeout(() => {
+      setSparks((prev) => prev.filter((s) => s.id !== id));
+    }, 350);
+  }, []);
 
   const handleTap = useCallback(
     (tapX: number, tapY: number, imageEl: HTMLElement) => {
@@ -114,32 +105,38 @@ export function useGame() {
       const absX = rect.left + tapX;
       const absY = rect.top + tapY;
 
+      const foundIds = foundMarkers.map((m) => m.id);
       const foundSet = new Set([...foundIds, ...hintIds]);
       const hit = checkHit(relX, relY, zones, foundSet);
 
       if (hit !== null) {
         addSpark(absX, absY, true);
-        setFoundIds((prev) => [...prev, hit]);
+        setFoundMarkers((prev) => [
+          ...prev,
+          { id: hit, tapX: relX, tapY: relY },
+        ]);
       } else {
         addSpark(absX, absY, false);
       }
     },
-    [loading, foundIds, hintIds, zones, addSpark]
+    [loading, foundMarkers, hintIds, zones, addSpark]
   );
 
   const handleHint = useCallback(() => {
     if (loading) return;
+    const foundIds = foundMarkers.map((m) => m.id);
     const revealedSet = new Set([...foundIds, ...hintIds]);
     const unrevealedZone = zones.find((z) => !revealedSet.has(z.id));
     if (unrevealedZone) {
       setHintIds((prev) => [...prev, unrevealedZone.id]);
     }
-  }, [loading, foundIds, hintIds, zones]);
+  }, [loading, foundMarkers, hintIds, zones]);
 
   const nextLevel = useCallback(() => {
     loadLevel(allSets, usedIndices, level + 1);
   }, [allSets, usedIndices, level, loadLevel]);
 
+  const foundIds = foundMarkers.map((m) => m.id);
   const allFound =
     zones.length > 0 &&
     foundIds.length + hintIds.length >= zones.length;
@@ -148,6 +145,7 @@ export function useGame() {
     level,
     imageSet,
     zones,
+    foundMarkers,
     foundIds,
     hintIds,
     sparks,

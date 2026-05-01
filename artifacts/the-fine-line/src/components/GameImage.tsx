@@ -1,5 +1,6 @@
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Zone } from "../lib/hitmap";
+import { FoundMarker } from "../hooks/useGame";
 
 const MARKER_COLORS = [
   "#3b82f6",
@@ -14,18 +15,75 @@ const MARKER_COLORS = [
 
 const HINT_COLOR = "#f59e0b";
 
-interface MarkerData {
+interface MarkerProps {
   zone: Zone;
   type: "found" | "hint";
   ordinal: number | null;
-  colorIndex: number;
+  color: string;
+  tapX: number; // fraction 0-1, where the tap landed (relative to image)
+  tapY: number;
+  containerRef: React.RefObject<HTMLDivElement | null>;
+}
+
+function Marker({ zone, type, ordinal, color, tapX, tapY, containerRef }: MarkerProps) {
+  const [settled, setSettled] = useState(false);
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      setSettled(true);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
+  const rect = containerRef.current?.getBoundingClientRect();
+  const dx = rect ? (tapX - zone.cx) * rect.width : 0;
+  const dy = rect ? (tapY - zone.cy) * rect.height : 0;
+
+  const transform = settled
+    ? "translate(-50%, -50%) scale(1)"
+    : `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(0.4)`;
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left: `${zone.cx * 100}%`,
+        top: `${zone.cy * 100}%`,
+        transform,
+        opacity: settled ? 1 : 0,
+        transition:
+          "transform 0.45s cubic-bezier(0.34, 1.4, 0.64, 1), opacity 0.25s ease",
+        pointerEvents: "none",
+        zIndex: 10,
+      }}
+    >
+      <div
+        style={{
+          backgroundColor: color,
+          color: "white",
+          borderRadius: "50%",
+          width: "32px",
+          height: "32px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: "14px",
+          fontWeight: "700",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
+          border: "2px solid rgba(255,255,255,0.8)",
+        }}
+      >
+        {type === "hint" ? "💡" : ordinal}
+      </div>
+    </div>
+  );
 }
 
 interface GameImageProps {
   src: string;
   alt: string;
   zones: Zone[];
-  foundIds: number[];
+  foundMarkers: FoundMarker[];
   hintIds: number[];
   onTap: (x: number, y: number, el: HTMLElement) => void;
 }
@@ -34,37 +92,11 @@ export function GameImage({
   src,
   alt,
   zones,
-  foundIds,
+  foundMarkers,
   hintIds,
   onTap,
 }: GameImageProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-
-  const markers: MarkerData[] = [];
-
-  foundIds.forEach((id, idx) => {
-    const zone = zones.find((z) => z.id === id);
-    if (zone) {
-      markers.push({
-        zone,
-        type: "found",
-        ordinal: idx + 1,
-        colorIndex: idx % MARKER_COLORS.length,
-      });
-    }
-  });
-
-  hintIds.forEach((id) => {
-    const zone = zones.find((z) => z.id === id);
-    if (zone && !foundIds.includes(id)) {
-      markers.push({
-        zone,
-        type: "hint",
-        ordinal: null,
-        colorIndex: -1,
-      });
-    }
-  });
 
   function handlePointerDown(e: React.PointerEvent<HTMLDivElement>) {
     if (!containerRef.current) return;
@@ -102,43 +134,41 @@ export function GameImage({
         }}
       />
 
-      {markers.map((m) => {
-        const color =
-          m.type === "hint" ? HINT_COLOR : MARKER_COLORS[m.colorIndex];
+      {foundMarkers.map((marker, idx) => {
+        const zone = zones.find((z) => z.id === marker.id);
+        if (!zone) return null;
         return (
-          <div
-            key={`${m.type}-${m.zone.id}`}
-            style={{
-              position: "absolute",
-              left: `${m.zone.cx * 100}%`,
-              top: `${m.zone.cy * 100}%`,
-              transform: "translate(-50%, -50%)",
-              pointerEvents: "none",
-              zIndex: 10,
-            }}
-          >
-            <div
-              style={{
-                backgroundColor: color,
-                color: "white",
-                borderRadius: "50%",
-                width: "32px",
-                height: "32px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "14px",
-                fontWeight: "700",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
-                border: "2px solid rgba(255,255,255,0.8)",
-                animation: "markerPop 0.25s ease-out",
-              }}
-            >
-              {m.type === "hint" ? "💡" : m.ordinal}
-            </div>
-          </div>
+          <Marker
+            key={`found-${marker.id}`}
+            zone={zone}
+            type="found"
+            ordinal={idx + 1}
+            color={MARKER_COLORS[idx % MARKER_COLORS.length]}
+            tapX={marker.tapX}
+            tapY={marker.tapY}
+            containerRef={containerRef}
+          />
         );
       })}
+
+      {hintIds
+        .filter((id) => !foundMarkers.some((m) => m.id === id))
+        .map((id) => {
+          const zone = zones.find((z) => z.id === id);
+          if (!zone) return null;
+          return (
+            <Marker
+              key={`hint-${id}`}
+              zone={zone}
+              type="hint"
+              ordinal={null}
+              color={HINT_COLOR}
+              tapX={zone.cx}
+              tapY={zone.cy}
+              containerRef={containerRef}
+            />
+          );
+        })}
     </div>
   );
 }
