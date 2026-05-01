@@ -49,7 +49,7 @@ export default function GamePage() {
             {loading
               ? "טוען..."
               : diffCount > 0
-              ? `זהו ${diffCount} הבדלים בתמונה שלפניכם`
+              ? `זהו ${diffCount} הבדלים בין התמונות`
               : "זהו את ההבדלים בין שתי התמונות"}
           </p>
 
