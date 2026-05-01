@@ -1,0 +1,9 @@
+[
+  {
+    "id": "walk-in-park",
+    "name": "Walk In Park",
+    "original": "image-sets/walk-in-park/original.png",
+    "modified": "image-sets/walk-in-park/modified.png",
+    "hitmap": "image-sets/walk-in-park/hitmap.png"
+  }
+]
