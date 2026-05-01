@@ -70,7 +70,7 @@ A spot-the-difference mobile web game in Hebrew with RTL support, targeting peop
 ### Game Features
 
 - Hebrew RTL UI
-- Background music toggle (music-note icon next to the score pill, top-left). Two MP3 tracks loop one after the other; managed by `useBackgroundMusic` hook using a single `Audio` instance. Off by default — playback starts on the user's first toggle click (browser autoplay policy).
+- Background music toggle (music-note icon next to the score pill, top-left). Two MP3 tracks loop one after the other; managed by `useBackgroundMusic` hook using a single `Audio` instance. **On by default** — the hook attempts immediate autoplay and, if blocked by the browser's autoplay policy, starts playback on the very first user gesture anywhere on the page (pointerdown/keydown/touchstart).
 - Sparkle animation on correct tap, X-mark on miss (350ms)
 - Ordinal numbered markers for player-found differences (8 rotating colors)
 - Hint button (💡) reveals a difference with an amber marker, sharing the same numbered sequence as player taps
