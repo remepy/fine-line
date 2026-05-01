@@ -5,5 +5,12 @@
     "original": "image-sets/walk-in-park/original.png",
     "modified": "image-sets/walk-in-park/modified.png",
     "hitmap": "image-sets/walk-in-park/hitmap.png"
+  },
+  {
+    "id": "seaside-terrace",
+    "name": "Seaside Terrace",
+    "original": "image-sets/seaside-terrace/original.png",
+    "modified": "image-sets/seaside-terrace/modified.png",
+    "hitmap": "image-sets/seaside-terrace/hitmap.png"
   }
 ]
