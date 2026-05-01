@@ -246,10 +246,13 @@ html, body, #root {
   transform: scale(1.1);
 }
 
-/* Top-left (RTL trailing): score */
+/* Top-left (RTL trailing): score + music toggle */
 .overlay-score {
   top: max(8px, var(--safe-top));
   left: max(10px, var(--safe-left));
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .score-pill {
@@ -262,6 +265,63 @@ html, body, #root {
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid var(--overlay-border);
   border-radius: 999px;
+}
+
+/* Music toggle button — sits next to the score pill */
+.music-toggle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid var(--overlay-border);
+  background: var(--overlay-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.2s ease, color 0.2s ease;
+  color: var(--text-secondary);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.music-toggle:hover {
+  transform: scale(1.05);
+}
+
+.music-toggle:active {
+  transform: scale(0.95);
+}
+
+.music-toggle.is-on {
+  color: var(--accent);
+  background: rgba(16, 185, 129, 0.18);
+  border-color: rgba(16, 185, 129, 0.45);
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.35);
+}
+
+.music-toggle.is-off {
+  color: rgba(226, 232, 240, 0.55);
+}
+
+.music-icon {
+  display: block;
+}
+
+/* Diagonal slash drawn over the icon when music is OFF */
+.music-slash {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 26px;
+  height: 2px;
+  background: rgba(226, 232, 240, 0.85);
+  border-radius: 2px;
+  transform: translate(-50%, -50%) rotate(-45deg);
+  box-shadow: 0 0 0 1.5px rgba(15, 23, 42, 0.7);
+  pointer-events: none;
 }
 
 .score-value {

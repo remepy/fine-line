@@ -1,5 +1,6 @@
 import { useGame } from "../hooks/useGame";
 import { useIsRotated } from "../hooks/useIsRotated";
+import { useBackgroundMusic } from "../hooks/useBackgroundMusic";
 import { GameImage } from "../components/GameImage";
 import { SparklesLayer } from "../components/Sparkle";
 import { SuccessModal } from "../components/SuccessModal";
@@ -22,6 +23,7 @@ export default function GamePage() {
   } = useGame();
 
   const isRotated = useIsRotated();
+  const { isPlaying: musicPlaying, toggle: toggleMusic } = useBackgroundMusic();
   const diffCount = zones.length;
   const revealedCount = revealedMarkers.length;
   const hintButtonDisabled = loading || hintsLeft <= 0;
@@ -96,7 +98,7 @@ export default function GamePage() {
             </div>
           )}
 
-          {/* Top-left (RTL trailing): score */}
+          {/* Top-left (RTL trailing): score + music toggle */}
           {!loading && diffCount > 0 && (
             <div className="overlay overlay-score">
               <div className="score-pill" dir="ltr">
@@ -104,6 +106,28 @@ export default function GamePage() {
                 <span className="score-sep">/</span>
                 <span className="score-total">{diffCount}</span>
               </div>
+              <button
+                type="button"
+                className={`music-toggle ${musicPlaying ? "is-on" : "is-off"}`}
+                onClick={toggleMusic}
+                title={musicPlaying ? "השתק מוזיקה" : "הפעל מוזיקה"}
+                aria-label={musicPlaying ? "השתק מוזיקה" : "הפעל מוזיקה"}
+                aria-pressed={musicPlaying}
+              >
+                <svg
+                  className="music-icon"
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z" />
+                </svg>
+                {!musicPlaying && (
+                  <span className="music-slash" aria-hidden="true" />
+                )}
+              </button>
             </div>
           )}
 
