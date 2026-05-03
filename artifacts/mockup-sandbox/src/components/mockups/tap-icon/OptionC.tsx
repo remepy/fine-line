@@ -1,12 +1,12 @@
-import { MousePointerClick } from "lucide-react";
+import { Hand } from "lucide-react";
 
-/** Option B: Lucide MousePointerClick — cursor with radiating click lines */
-export function OptionB() {
+/** Option C: Lucide Hand — open palm, natural "stop / tap here" gesture */
+export function OptionC() {
   return (
     <div style={{ minHeight: "100vh", background: "#0f172a", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Segoe UI', Arial, sans-serif" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "6px", padding: "6px 12px", background: "rgba(255,255,255,0.08)", backdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "999px", fontSize: "16px", color: "#94a3b8", direction: "rtl" }}>
         <span>זהו 7 הבדלים</span>
-        <MousePointerClick size={18} strokeWidth={1.8} style={{ flexShrink: 0, opacity: 0.85 }} aria-hidden="true" />
+        <Hand size={18} strokeWidth={1.8} style={{ flexShrink: 0, opacity: 0.85 }} aria-hidden="true" />
       </div>
     </div>
   );
