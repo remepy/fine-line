@@ -4,27 +4,28 @@ import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 
+// PORT is only needed for the dev/preview server. During a production build
+// (e.g. on the Replit deployment builder) it is intentionally not set, so we
+// only enforce it when a server is actually being started.
 const rawPort = process.env.PORT;
+const isBuild = process.argv.includes("build");
 
-if (!rawPort) {
+if (!isBuild && !rawPort) {
   throw new Error(
     "PORT environment variable is required but was not provided.",
   );
 }
 
-const port = Number(rawPort);
+const port = rawPort ? Number(rawPort) : 0;
 
-if (Number.isNaN(port) || port <= 0) {
+if (rawPort && (Number.isNaN(port) || port <= 0)) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
 
-const basePath = process.env.BASE_PATH;
-
-if (!basePath) {
-  throw new Error(
-    "BASE_PATH environment variable is required but was not provided.",
-  );
-}
+// BASE_PATH controls the asset URL prefix in the built HTML. The dev workflow
+// always sets it; for production builds we fall back to "/" since this app is
+// served at the domain root.
+const basePath = process.env.BASE_PATH ?? "/";
 
 export default defineConfig({
   base: basePath,
