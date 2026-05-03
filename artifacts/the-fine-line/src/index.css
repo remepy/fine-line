@@ -475,6 +475,17 @@ html, body, #root {
   font-size: 16px;
   color: var(--text-secondary);
   pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  direction: rtl;
+}
+
+.tap-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  opacity: 0.75;
 }
 
 /* ─── LOADING STATE ───────────────────── */

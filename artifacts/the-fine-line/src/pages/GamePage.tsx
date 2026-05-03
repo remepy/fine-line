@@ -185,7 +185,15 @@ export default function GamePage() {
           {/* Bottom-right (RTL leading): subtitle */}
           {!loading && diffCount > 0 && (
             <div className="overlay-subtitle">
-              זהו {diffCount} הבדלים וסמנו בלחיצה
+              זהו {diffCount} הבדלים
+              <svg
+                className="tap-icon"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path d="M9 11.24V7.5a2.5 2.5 0 0 1 5 0v3.74c1.23-.48 2-.98 2-1.74V7.5C16 4.42 13.58 2 10.5 2S5 4.42 5 7.5v4.25c0 1.77 1.58 3.25 3.5 3.25h.5v-3.76zM17.5 13h-1.32C15.49 13 15 13.49 15 14.09V15h-2v-1.91C13 12.49 12.51 12 11.91 12H9.5c-1.38 0-2.5-1.12-2.5-2.5V7.5C7 5.57 8.57 4 10.5 4S14 5.57 14 7.5V12h1.09c.6 0 1.09.49 1.09 1.09V15h1c.55 0 1 .45 1 1v3.5c0 1.38-1.12 2.5-2.5 2.5h-4C9.12 22 8 20.88 8 19.5V18H7v1.5C7 21.43 8.57 23 10.5 23h4c1.93 0 3.5-1.57 3.5-3.5V16c0-1.66-1.34-3-3-3z" />
+              </svg>
             </div>
           )}
 
