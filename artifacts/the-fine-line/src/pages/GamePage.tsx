@@ -25,7 +25,11 @@ export default function GamePage() {
 
   const isRotated = useIsRotated();
   const { isPlaying: musicPlaying, toggle: toggleMusic } = useBackgroundMusic();
-  useFullscreen();
+  const {
+    isFullscreen,
+    toggle: toggleFullscreen,
+    isSupported: fullscreenSupported,
+  } = useFullscreen();
   const diffCount = zones.length;
   const revealedCount = revealedMarkers.length;
   const hintButtonDisabled = loading || hintsLeft <= 0;
@@ -130,6 +134,50 @@ export default function GamePage() {
                   <span className="music-slash" aria-hidden="true" />
                 )}
               </button>
+              {fullscreenSupported && (
+                <button
+                  type="button"
+                  className={`fs-toggle ${isFullscreen ? "is-on" : "is-off"}`}
+                  onClick={toggleFullscreen}
+                  title={isFullscreen ? "צא ממסך מלא" : "מסך מלא"}
+                  aria-label={isFullscreen ? "צא ממסך מלא" : "מסך מלא"}
+                  aria-pressed={isFullscreen}
+                >
+                  {isFullscreen ? (
+                    /* Minimize: arrows pointing inward */
+                    <svg
+                      className="fs-icon"
+                      viewBox="0 0 24 24"
+                      width="18"
+                      height="18"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M9 3v6H3M15 3v6h6M9 21v-6H3M15 21v-6h6" />
+                    </svg>
+                  ) : (
+                    /* Maximize: arrows pointing outward */
+                    <svg
+                      className="fs-icon"
+                      viewBox="0 0 24 24"
+                      width="18"
+                      height="18"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M3 9V3h6M21 9V3h-6M3 15v6h6M21 15v6h-6" />
+                    </svg>
+                  )}
+                </button>
+              )}
             </div>
           )}
 

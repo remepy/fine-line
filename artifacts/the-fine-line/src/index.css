@@ -310,6 +310,44 @@ html, body, #root {
   display: block;
 }
 
+/* Fullscreen toggle — same shape/size as the music toggle, sits next to it */
+.fs-toggle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid var(--overlay-border);
+  background: var(--overlay-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.2s ease, color 0.2s ease;
+  color: var(--text-secondary);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fs-toggle:hover { transform: scale(1.05); }
+.fs-toggle:active { transform: scale(0.95); }
+
+.fs-toggle.is-on {
+  color: var(--accent);
+  background: rgba(16, 185, 129, 0.18);
+  border-color: rgba(16, 185, 129, 0.45);
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.35);
+}
+
+.fs-toggle.is-off {
+  color: rgba(226, 232, 240, 0.75);
+}
+
+.fs-icon {
+  display: block;
+}
+
 /* Diagonal slash drawn over the icon when music is OFF */
 .music-slash {
   position: absolute;
