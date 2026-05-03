@@ -105,13 +105,16 @@ export default function GamePage() {
             </div>
           )}
 
-          {/* Top-left (RTL trailing): score + music toggle */}
-          {!loading && diffCount > 0 && (
-            <div className="overlay overlay-score">
+          {/* Top-left (RTL trailing): score + music toggle — always visible */}
+          <div className="overlay overlay-score">
               <div className="score-pill" dir="ltr">
-                <span className="score-value">{revealedCount}</span>
-                <span className="score-sep">/</span>
-                <span className="score-total">{diffCount}</span>
+                {diffCount > 0 && (
+                  <>
+                    <span className="score-value">{revealedCount}</span>
+                    <span className="score-sep">/</span>
+                    <span className="score-total">{diffCount}</span>
+                  </>
+                )}
               </div>
               <button
                 type="button"
@@ -179,8 +182,7 @@ export default function GamePage() {
                   )}
                 </button>
               )}
-            </div>
-          )}
+          </div>
 
           {/* Bottom-right (RTL leading): subtitle */}
           {!loading && diffCount > 0 && (
