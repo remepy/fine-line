@@ -12,5 +12,12 @@
     "original": "image-sets/seaside-terrace/original.png",
     "modified": "image-sets/seaside-terrace/modified.png",
     "hitmap": "image-sets/seaside-terrace/hitmap.png"
+  },
+  {
+    "id": "flower-market",
+    "name": "Flower Market",
+    "original": "image-sets/flower-market/original.png",
+    "modified": "image-sets/flower-market/modified.png",
+    "hitmap": "image-sets/flower-market/hitmap.png"
   }
 ]
