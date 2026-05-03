@@ -185,7 +185,7 @@ export default function GamePage() {
           {/* Bottom-right (RTL leading): subtitle */}
           {!loading && diffCount > 0 && (
             <div className="overlay-subtitle">
-              זהו {diffCount} הבדלים בין התמונות
+              זהו {diffCount} הבדלים וסמנו בלחיצה
             </div>
           )}
 
