@@ -1,4 +1,4 @@
-/** Option A: Fingertip tap with ripple rings — unmistakably "touch this" */
+/** Option A: Outline hand pointer with short straight impact lines (precise & sharp) */
 export function OptionA() {
   return (
     <div
@@ -27,37 +27,38 @@ export function OptionA() {
         }}
       >
         <span>זהו 7 הבדלים</span>
-        {/* Fingertip with ripple */}
         <svg
-          viewBox="0 0 24 24"
-          width="18"
-          height="18"
+          viewBox="0 0 64 64"
+          width="20"
+          height="20"
           fill="none"
-          style={{ flexShrink: 0, opacity: 0.75 }}
+          stroke="currentColor"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          style={{ flexShrink: 0, opacity: 0.85 }}
           aria-hidden="true"
         >
-          {/* Outer ripple ring */}
-          <circle cx="12" cy="17" r="6" stroke="currentColor" strokeWidth="1.2" opacity="0.35" />
-          {/* Inner ripple ring */}
-          <circle cx="12" cy="17" r="3.5" stroke="currentColor" strokeWidth="1.4" opacity="0.6" />
-          {/* Fingertip dot */}
-          <circle cx="12" cy="17" r="1.6" fill="currentColor" />
-          {/* Finger body */}
-          <path
-            d="M12 3 L12 13"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-          />
-          {/* Knuckle bumps */}
-          <path
-            d="M9.5 7 Q12 5.5 14.5 7"
-            stroke="currentColor"
-            strokeWidth="1.4"
-            strokeLinecap="round"
-            fill="none"
-            opacity="0.6"
-          />
+          {/* Impact lines above fingertip */}
+          <line x1="32" y1="4"  x2="32" y2="10" />
+          <line x1="20" y1="7"  x2="23" y2="12" />
+          <line x1="44" y1="7"  x2="41" y2="12" />
+
+          {/* Pointing finger */}
+          <rect x="27" y="14" width="10" height="18" rx="5" />
+
+          {/* Hand body — four fingers folded */}
+          <path d="
+            M27 26
+            C27 26 21 26 21 31 L21 40
+            C21 40 21 55 32 55
+            C43 55 43 40 43 40 L43 31
+            C43 26 37 26 37 26
+          " />
+          {/* Fold lines for the other fingers */}
+          <line x1="27" y1="31" x2="27" y2="38" />
+          <line x1="37" y1="31" x2="37" y2="38" />
+          <line x1="21" y1="34" x2="43" y2="34" opacity="0" />
         </svg>
       </div>
     </div>
