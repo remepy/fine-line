@@ -475,7 +475,7 @@ html, body, #root {
   border: 1px solid var(--overlay-border);
   border-radius: 999px;
   font-size: 16px;
-  color: var(--text-secondary);
+  color: #ffffff;
   pointer-events: none;
   display: flex;
   align-items: center;
@@ -487,7 +487,8 @@ html, body, #root {
   width: 18px;
   height: 18px;
   flex-shrink: 0;
-  opacity: 0.75;
+  opacity: 1;
+  color: #ffffff;
 }
 
 /* ─── LOADING STATE ───────────────────── */
