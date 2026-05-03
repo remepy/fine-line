@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useGame } from "../hooks/useGame";
 import { useIsRotated } from "../hooks/useIsRotated";
 import { useBackgroundMusic } from "../hooks/useBackgroundMusic";
@@ -31,6 +32,7 @@ export default function GamePage() {
     toggle: toggleFullscreen,
     isSupported: fullscreenSupported,
   } = useFullscreen();
+  const [hasUsedFullscreen, setHasUsedFullscreen] = useState(false);
   const diffCount = zones.length;
   const revealedCount = revealedMarkers.length;
   const hintButtonDisabled = loading || hintsLeft <= 0;
@@ -141,8 +143,8 @@ export default function GamePage() {
               {fullscreenSupported && (
                 <button
                   type="button"
-                  className={`fs-toggle ${isFullscreen ? "is-on" : "is-off"}`}
-                  onClick={toggleFullscreen}
+                  className={`fs-toggle ${isFullscreen ? "is-on" : "is-off"}${!hasUsedFullscreen ? " fs-pulse-active" : ""}`}
+                  onClick={() => { setHasUsedFullscreen(true); toggleFullscreen(); }}
                   title={isFullscreen ? "צא ממסך מלא" : "מסך מלא"}
                   aria-label={isFullscreen ? "צא ממסך מלא" : "מסך מלא"}
                   aria-pressed={isFullscreen}

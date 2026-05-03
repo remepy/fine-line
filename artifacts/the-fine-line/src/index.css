@@ -369,6 +369,15 @@ html, body, #root {
   color: rgba(226, 232, 240, 0.75);
 }
 
+@keyframes fs-pulse {
+  0%, 100% { box-shadow: 0 0 0 0px rgba(241, 245, 249, 0.45); transform: scale(1); }
+  50%       { box-shadow: 0 0 0 7px rgba(241, 245, 249, 0);    transform: scale(1.07); }
+}
+
+.fs-toggle.fs-pulse-active {
+  animation: fs-pulse 2s ease-in-out infinite;
+}
+
 .fs-icon {
   display: block;
 }
