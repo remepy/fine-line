@@ -206,7 +206,7 @@ html, body, #root {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
+  padding: 6px 12px;
   background: var(--overlay-bg);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -215,7 +215,7 @@ html, body, #root {
 }
 
 .game-title {
-  font-size: 20px;
+  font-size: 15px;
   font-weight: 800;
   color: var(--text-primary);
   letter-spacing: -0.2px;
@@ -226,8 +226,8 @@ html, body, #root {
   color: #cbd5e1;
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 999px;
-  padding: 2px 10px;
-  font-size: 14px;
+  padding: 1px 8px;
+  font-size: 11px;
   font-weight: 700;
 }
 
@@ -240,9 +240,9 @@ html, body, #root {
 
 .progress-row {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-direction: row-reverse;
-  padding: 8px 13px;
+  padding: 6px 10px;
   background: var(--overlay-bg);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -251,8 +251,8 @@ html, body, #root {
 }
 
 .progress-dot {
-  width: 12px;
-  height: 12px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.22);
   transition: background 0.3s ease, transform 0.2s ease;
@@ -282,7 +282,7 @@ html, body, #root {
   display: flex;
   align-items: baseline;
   gap: 4px;
-  padding: 8px 16px;
+  padding: 6px 12px;
   background: var(--overlay-bg);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -296,8 +296,8 @@ html, body, #root {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: 34px;
+  height: 34px;
   padding: 0;
   border-radius: 999px;
   border: 1px solid var(--overlay-border);
@@ -386,7 +386,7 @@ html, body, #root {
 }
 
 .score-value {
-  font-size: 20px;
+  font-size: 15px;
   font-weight: 800;
   color: #f1f5f9;
   font-variant-numeric: tabular-nums;
@@ -394,11 +394,11 @@ html, body, #root {
 
 .score-sep {
   color: rgba(148, 163, 184, 0.5);
-  font-size: 17px;
+  font-size: 13px;
 }
 
 .score-total {
-  font-size: 17px;
+  font-size: 13px;
   color: var(--text-secondary);
   font-weight: 600;
   font-variant-numeric: tabular-nums;

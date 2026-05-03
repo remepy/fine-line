@@ -124,8 +124,8 @@ export default function GamePage() {
                 <svg
                   className="music-icon"
                   viewBox="0 0 24 24"
-                  width="24"
-                  height="24"
+                  width="18"
+                  height="18"
                   fill="currentColor"
                   aria-hidden="true"
                 >
