@@ -125,8 +125,8 @@ html, body, #root {
 }
 
 .portrait-overlay__icon {
-  width: 96px;
-  height: 96px;
+  width: 384px;
+  height: 384px;
   color: var(--accent);
   animation: rotate-hint 1.8s ease-in-out infinite;
   transform-origin: center center;
@@ -140,7 +140,7 @@ html, body, #root {
 }
 
 .portrait-overlay__text {
-  font-size: 22px;
+  font-size: 32px;
   font-weight: 600;
   color: var(--text-primary);
   letter-spacing: 0.01em;
