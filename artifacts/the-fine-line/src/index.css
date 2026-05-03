@@ -7,10 +7,10 @@
   --overlay-border: rgba(255, 255, 255, 0.08);
   --text-primary: #f1f5f9;
   --text-secondary: #94a3b8;
-  --accent: #10b981;
-  --accent-dark: #059669;
+  --accent: #f1f5f9;
+  --accent-dark: #cbd5e1;
   --hint-color: #f59e0b;
-  --found-dot: #10b981;
+  --found-dot: rgba(255, 255, 255, 0.88);
   --hint-dot: #f59e0b;
 
   --safe-top: env(safe-area-inset-top, 0px);
@@ -206,7 +206,7 @@ html, body, #root {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 12px;
+  padding: 8px 16px;
   background: var(--overlay-bg);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -215,19 +215,19 @@ html, body, #root {
 }
 
 .game-title {
-  font-size: 15px;
+  font-size: 20px;
   font-weight: 800;
   color: var(--text-primary);
   letter-spacing: -0.2px;
 }
 
 .level-badge {
-  background: rgba(16, 185, 129, 0.25);
-  color: #6ee7b7;
-  border: 1px solid rgba(16, 185, 129, 0.4);
+  background: rgba(255, 255, 255, 0.09);
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 999px;
-  padding: 1px 8px;
-  font-size: 11px;
+  padding: 2px 10px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -240,9 +240,9 @@ html, body, #root {
 
 .progress-row {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   flex-direction: row-reverse;
-  padding: 6px 10px;
+  padding: 8px 13px;
   background: var(--overlay-bg);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -251,8 +251,8 @@ html, body, #root {
 }
 
 .progress-dot {
-  width: 9px;
-  height: 9px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.22);
   transition: background 0.3s ease, transform 0.2s ease;
@@ -261,7 +261,7 @@ html, body, #root {
 .progress-dot.found {
   background: var(--found-dot);
   transform: scale(1.15);
-  box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+  box-shadow: none;
 }
 
 .progress-dot.hinted {
@@ -282,7 +282,7 @@ html, body, #root {
   display: flex;
   align-items: baseline;
   gap: 4px;
-  padding: 6px 12px;
+  padding: 8px 16px;
   background: var(--overlay-bg);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -296,8 +296,8 @@ html, body, #root {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   border-radius: 999px;
   border: 1px solid var(--overlay-border);
@@ -319,10 +319,10 @@ html, body, #root {
 }
 
 .music-toggle.is-on {
-  color: var(--accent);
-  background: rgba(16, 185, 129, 0.18);
-  border-color: rgba(16, 185, 129, 0.45);
-  box-shadow: 0 0 8px rgba(16, 185, 129, 0.35);
+  color: #f1f5f9;
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow: none;
 }
 
 .music-toggle.is-off {
@@ -333,14 +333,14 @@ html, body, #root {
   display: block;
 }
 
-/* Fullscreen toggle — same shape/size as the music toggle, sits next to it */
+/* Fullscreen toggle — larger than other buttons for easy reach */
 .fs-toggle {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 51px;
+  height: 51px;
   padding: 0;
   border-radius: 999px;
   border: 1px solid var(--overlay-border);
@@ -357,10 +357,10 @@ html, body, #root {
 .fs-toggle:active { transform: scale(0.95); }
 
 .fs-toggle.is-on {
-  color: var(--accent);
-  background: rgba(16, 185, 129, 0.18);
-  border-color: rgba(16, 185, 129, 0.45);
-  box-shadow: 0 0 8px rgba(16, 185, 129, 0.35);
+  color: #f1f5f9;
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow: none;
 }
 
 .fs-toggle.is-off {
@@ -386,19 +386,19 @@ html, body, #root {
 }
 
 .score-value {
-  font-size: 15px;
+  font-size: 20px;
   font-weight: 800;
-  color: var(--accent);
+  color: #f1f5f9;
   font-variant-numeric: tabular-nums;
 }
 
 .score-sep {
   color: rgba(148, 163, 184, 0.5);
-  font-size: 13px;
+  font-size: 17px;
 }
 
 .score-total {
-  font-size: 13px;
+  font-size: 17px;
   color: var(--text-secondary);
   font-weight: 600;
   font-variant-numeric: tabular-nums;

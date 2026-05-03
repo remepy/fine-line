@@ -124,8 +124,8 @@ export default function GamePage() {
                 <svg
                   className="music-icon"
                   viewBox="0 0 24 24"
-                  width="18"
-                  height="18"
+                  width="24"
+                  height="24"
                   fill="currentColor"
                   aria-hidden="true"
                 >
@@ -149,8 +149,8 @@ export default function GamePage() {
                     <svg
                       className="fs-icon"
                       viewBox="0 0 24 24"
-                      width="18"
-                      height="18"
+                      width="27"
+                      height="27"
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="2.2"
@@ -165,8 +165,8 @@ export default function GamePage() {
                     <svg
                       className="fs-icon"
                       viewBox="0 0 24 24"
-                      width="18"
-                      height="18"
+                      width="27"
+                      height="27"
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="2.2"
