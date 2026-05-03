@@ -5,6 +5,7 @@ import { useFullscreen } from "../hooks/useFullscreen";
 import { GameImage } from "../components/GameImage";
 import { SparklesLayer } from "../components/Sparkle";
 import { SuccessModal } from "../components/SuccessModal";
+import { PortraitOverlay } from "../components/PortraitOverlay";
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -213,6 +214,8 @@ export default function GamePage() {
         level={level}
         onNext={nextLevel}
       />
+
+      <PortraitOverlay visible={isRotated} />
     </>
   );
 }

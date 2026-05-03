@@ -63,27 +63,8 @@ html, body, #root {
   transition: transform 0.25s ease;
 }
 
-@media (orientation: portrait) and (max-width: 900px) {
-  .rotation-wrapper {
-    width: 100vh;
-    height: 100vw;
-    top: 0;
-    left: 0;
-    right: auto;
-    bottom: auto;
-    inset: auto;
-    transform-origin: top left;
-    transform: rotate(90deg) translate(0, -100%);
-    /* Remap safe-area insets for the 90° CW rotation so overlays
-       still clear the physical viewport notch / home indicator.
-       After rotation: element-top → visual-right, element-right →
-       visual-bottom, element-bottom → visual-left, element-left → visual-top. */
-    --safe-top: env(safe-area-inset-right, 0px);
-    --safe-right: env(safe-area-inset-bottom, 0px);
-    --safe-bottom: env(safe-area-inset-left, 0px);
-    --safe-left: env(safe-area-inset-top, 0px);
-  }
-}
+/* Portrait on mobile: the overlay covers the viewport, so no CSS rotation
+   is applied — the rotate-prompt tells the user what to do instead. */
 
 /* ─── PHONE FRAME ───────────────────────── */
 /* On desktop: bordered phone-shaped card. On mobile: edge-to-edge fullscreen. */
@@ -114,15 +95,57 @@ html, body, #root {
   }
 }
 
-/* When rotated (portrait device), the rotation-wrapper has dimensions
-   100dvh × 100vw, and we want the phone-frame to fill it entirely. */
-@media (orientation: portrait) and (max-width: 900px) {
-  .phone-frame {
-    width: 100%;
-    height: 100%;
-    max-width: none;
-    max-height: none;
-  }
+/* ─── PORTRAIT OVERLAY ───────────────────── */
+/* Shown on mobile devices held in portrait — blocks the game and prompts
+   the player to rotate to landscape. Sits above everything else. */
+
+.portrait-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--game-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: portrait-fade-in 0.25s ease;
+}
+
+@keyframes portrait-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.portrait-overlay__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  padding: 32px;
+  text-align: center;
+}
+
+.portrait-overlay__icon {
+  width: 96px;
+  height: 96px;
+  color: var(--accent);
+  animation: rotate-hint 1.8s ease-in-out infinite;
+  transform-origin: center center;
+}
+
+@keyframes rotate-hint {
+  0%   { transform: rotate(0deg);   opacity: 1; }
+  40%  { transform: rotate(-25deg); opacity: 1; }
+  60%  { transform: rotate(-25deg); opacity: 0.7; }
+  100% { transform: rotate(0deg);   opacity: 1; }
+}
+
+.portrait-overlay__text {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.01em;
+  direction: rtl;
+  margin: 0;
 }
 
 /* ─── IMAGES AREA ──────────────────────── */
