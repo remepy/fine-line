@@ -189,10 +189,17 @@ export default function GamePage() {
               <svg
                 className="tap-icon"
                 viewBox="0 0 24 24"
-                fill="currentColor"
+                fill="none"
                 aria-hidden="true"
               >
-                <path d="M9 11.24V7.5a2.5 2.5 0 0 1 5 0v3.74c1.23-.48 2-.98 2-1.74V7.5C16 4.42 13.58 2 10.5 2S5 4.42 5 7.5v4.25c0 1.77 1.58 3.25 3.5 3.25h.5v-3.76zM17.5 13h-1.32C15.49 13 15 13.49 15 14.09V15h-2v-1.91C13 12.49 12.51 12 11.91 12H9.5c-1.38 0-2.5-1.12-2.5-2.5V7.5C7 5.57 8.57 4 10.5 4S14 5.57 14 7.5V12h1.09c.6 0 1.09.49 1.09 1.09V15h1c.55 0 1 .45 1 1v3.5c0 1.38-1.12 2.5-2.5 2.5h-4C9.12 22 8 20.88 8 19.5V18H7v1.5C7 21.43 8.57 23 10.5 23h4c1.93 0 3.5-1.57 3.5-3.5V16c0-1.66-1.34-3-3-3z" />
+                <path d="M8 13V4.5C8 4.10218 8.15804 3.72064 8.43934 3.43934C8.72064 3.15804 9.10218 3 9.5 3C9.89782 3 10.2794 3.15804 10.5607 3.43934C10.842 3.72064 11 4.10218 11 4.5V12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M11 11.5V9.5C11 9.10218 11.158 8.72064 11.4393 8.43934C11.7206 8.15804 12.1022 8 12.5 8C12.8978 8 13.2794 8.15804 13.5607 8.43934C13.842 8.72064 14 9.10218 14 9.5V12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M14 10.5C14 10.1022 14.158 9.72064 14.4393 9.43934C14.7206 9.15804 15.1022 9 15.5 9C15.8978 9 16.2794 9.15804 16.5607 9.43934C16.842 9.72064 17 10.1022 17 10.5V12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M17.0002 11.5C17.0002 11.1022 17.1582 10.7206 17.4395 10.4393C17.7208 10.158 18.1024 10 18.5002 10C18.898 10 19.2795 10.158 19.5608 10.4393C19.8421 10.7206 20.0002 11.1022 20.0002 11.5V16C20.0002 17.5913 19.368 19.1174 18.2428 20.2426C17.1176 21.3679 15.5915 22 14.0002 22H12.0002H12.2082C11.2145 22.0002 10.2364 21.7535 9.36157 21.2823C8.48676 20.811 7.7427 20.1299 7.19618 19.3L7.00018 19C6.68818 18.521 5.59318 16.612 3.71418 13.272C3.52263 12.9315 3.47147 12.5298 3.57157 12.1522C3.67166 11.7745 3.91513 11.4509 4.25018 11.25C4.60706 11.0359 5.02526 10.9471 5.43834 10.9978C5.85143 11.0486 6.23572 11.2359 6.53018 11.53L8.00018 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M5 3L4 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M4 7H3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M14 3L15 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M15 6H16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
           )}
