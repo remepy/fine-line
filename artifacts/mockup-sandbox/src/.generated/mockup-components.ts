@@ -4,5 +4,7 @@ export const modules: ModuleMap = {
   "./components/mockups/pill-scheme/Current.tsx": () => import("../components/mockups/pill-scheme/Current.tsx"),
   "./components/mockups/pill-scheme/IceBlue.tsx": () => import("../components/mockups/pill-scheme/IceBlue.tsx"),
   "./components/mockups/pill-scheme/WarmAmber.tsx": () => import("../components/mockups/pill-scheme/WarmAmber.tsx"),
-  "./components/mockups/pill-scheme/WhiteGhost.tsx": () => import("../components/mockups/pill-scheme/WhiteGhost.tsx")
+  "./components/mockups/pill-scheme/WhiteGhost.tsx": () => import("../components/mockups/pill-scheme/WhiteGhost.tsx"),
+  "./components/mockups/tap-icon/OptionA.tsx": () => import("../components/mockups/tap-icon/OptionA.tsx"),
+  "./components/mockups/tap-icon/OptionB.tsx": () => import("../components/mockups/tap-icon/OptionB.tsx")
 };
