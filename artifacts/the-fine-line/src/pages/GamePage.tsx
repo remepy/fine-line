@@ -7,6 +7,7 @@ import { GameImage } from "../components/GameImage";
 import { SparklesLayer } from "../components/Sparkle";
 import { SuccessModal } from "../components/SuccessModal";
 import { PortraitOverlay } from "../components/PortraitOverlay";
+import { A2HSBanner } from "../components/A2HSBanner";
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -235,6 +236,7 @@ export default function GamePage() {
       />
 
       <PortraitOverlay visible={isRotated} />
+      <A2HSBanner />
     </>
   );
 }
