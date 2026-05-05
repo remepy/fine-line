@@ -174,9 +174,9 @@ html, body, #root {
 }
 
 .divider-line {
-  width: 1px;
-  height: 70%;
-  background: rgba(255, 255, 255, 0.15);
+  width: 2px;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.55);
   flex-shrink: 0;
 }
 
