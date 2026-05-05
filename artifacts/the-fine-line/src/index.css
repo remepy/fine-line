@@ -417,8 +417,8 @@ html, body, #root {
 .hint-fab {
   position: absolute;
   z-index: 20;
-  bottom: max(12px, var(--safe-bottom));
-  left: max(12px, var(--safe-left));
+  bottom: 8px;
+  left: 8px;
   width: 56px;
   height: 56px;
   background: rgba(245, 158, 11, 0.92);
