@@ -31,7 +31,6 @@ function buildUrl(path: string) {
 
 export function useGame() {
   const [allSets, setAllSets] = useState<ImageSet[]>([]);
-  const [usedIndices, setUsedIndices] = useState<number[]>([]);
   const [level, setLevel] = useState(1);
   const [imageSet, setImageSet] = useState<ImageSet | null>(null);
   const [hitmapData, setHitmapData] = useState<HitmapData | null>(null);
@@ -48,22 +47,15 @@ export function useGame() {
   }, []);
 
   const loadLevel = useCallback(
-    async (sets: ImageSet[], used: number[], lvl: number) => {
+    async (sets: ImageSet[], lvl: number) => {
       if (sets.length === 0) return;
       setLoading(true);
       setHitmapData(null);
       setRevealedMarkers([]);
       setSparks([]);
 
-      let remaining = sets.map((_, i) => i).filter((i) => !used.includes(i));
-      if (remaining.length === 0) {
-        remaining = sets.map((_, i) => i);
-        setUsedIndices([]);
-      }
-
-      const idx = remaining[Math.floor(Math.random() * remaining.length)];
+      const idx = (lvl - 1) % sets.length;
       const set = sets[idx];
-      setUsedIndices((prev) => [...prev, idx]);
       setImageSet(set);
       setLevel(lvl);
 
@@ -81,7 +73,7 @@ export function useGame() {
 
   useEffect(() => {
     if (allSets.length > 0) {
-      loadLevel(allSets, [], 1);
+      loadLevel(allSets, 1);
     }
   }, [allSets, loadLevel]);
 
@@ -137,8 +129,8 @@ export function useGame() {
   }, [loading, hitmapData, revealedMarkers]);
 
   const nextLevel = useCallback(() => {
-    loadLevel(allSets, usedIndices, level + 1);
-  }, [allSets, usedIndices, level, loadLevel]);
+    loadLevel(allSets, level + 1);
+  }, [allSets, level, loadLevel]);
 
   const zones = hitmapData?.zones ?? [];
   const allFound = zones.length > 0 && revealedMarkers.length >= zones.length;
