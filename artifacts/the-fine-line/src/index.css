@@ -677,6 +677,8 @@ html, body, #root {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   animation: instr-fade-in 0.4s ease;
 }
 
@@ -689,8 +691,8 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 28px;
-  padding: 108px 48px 40px;
+  gap: 20px;
+  padding: 32px 48px 40px;
   max-width: 600px;
   width: 90%;
   text-align: center;
@@ -701,8 +703,8 @@ html, body, #root {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  font-size: 26px;
+  gap: 10px;
+  font-size: 22px;
   font-weight: 400;
   color: var(--text-primary);
   line-height: 1.5;
@@ -734,9 +736,9 @@ html, body, #root {
 }
 
 .instr-start-btn {
-  margin-top: 8px;
-  padding: 18px 56px;
-  font-size: 28px;
+  margin-top: 4px;
+  padding: 16px 56px;
+  font-size: 26px;
   font-weight: 700;
   color: var(--game-bg);
   background: var(--text-primary);
