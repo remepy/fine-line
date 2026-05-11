@@ -240,7 +240,7 @@ export default function GamePage() {
       <PortraitOverlay visible={isRotated} />
       <A2HSBanner />
 
-      {showInstructions && (
+      {showInstructions && !loading && (
         <InstructionSlide onStart={() => setShowInstructions(false)} />
       )}
     </>

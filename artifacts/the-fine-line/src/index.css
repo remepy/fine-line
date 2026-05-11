@@ -671,7 +671,9 @@ html, body, #root {
   position: fixed;
   inset: 0;
   z-index: 10000;
-  background: var(--game-bg);
+  background: rgba(15, 23, 42, 0.82);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
