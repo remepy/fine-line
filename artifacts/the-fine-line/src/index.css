@@ -664,3 +664,101 @@ html, body, #root {
   font-weight: 700;
   animation: wrongTap 0.35s ease-out forwards;
 }
+
+/* ─── INSTRUCTION SLIDE ─────────────────── */
+
+.instr-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: var(--game-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: instr-fade-in 0.4s ease;
+}
+
+@keyframes instr-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.instr-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  padding: 40px 48px;
+  max-width: 600px;
+  width: 90%;
+  text-align: center;
+  direction: rtl;
+}
+
+.instr-title {
+  font-size: 42px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+}
+
+.instr-body {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-size: 26px;
+  font-weight: 400;
+  color: var(--text-primary);
+  line-height: 1.5;
+  text-align: right;
+}
+
+.instr-fs-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  flex-wrap: wrap;
+}
+
+.instr-fs-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid var(--text-secondary);
+  border-radius: 7px;
+  flex-shrink: 0;
+  color: var(--text-secondary);
+}
+
+.instr-start-btn {
+  margin-top: 8px;
+  padding: 18px 56px;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--game-bg);
+  background: var(--text-primary);
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.instr-start-btn:hover {
+  opacity: 0.9;
+  transform: scale(1.03);
+}
+
+.instr-start-btn:active {
+  opacity: 0.75;
+  transform: scale(0.98);
+}

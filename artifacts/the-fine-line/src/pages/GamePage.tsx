@@ -8,6 +8,7 @@ import { SparklesLayer } from "../components/Sparkle";
 import { SuccessModal } from "../components/SuccessModal";
 import { PortraitOverlay } from "../components/PortraitOverlay";
 import { A2HSBanner } from "../components/A2HSBanner";
+import { InstructionSlide } from "../components/InstructionSlide";
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -34,6 +35,7 @@ export default function GamePage() {
     isSupported: fullscreenSupported,
   } = useFullscreen();
   const [hasUsedFullscreen, setHasUsedFullscreen] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(true);
   const diffCount = zones.length;
   const revealedCount = revealedMarkers.length;
   const hintButtonDisabled = loading || hintsLeft <= 0;
@@ -237,6 +239,10 @@ export default function GamePage() {
 
       <PortraitOverlay visible={isRotated} />
       <A2HSBanner />
+
+      {showInstructions && (
+        <InstructionSlide onStart={() => setShowInstructions(false)} />
+      )}
     </>
   );
 }
