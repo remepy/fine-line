@@ -241,7 +241,7 @@ export default function GamePage() {
       <A2HSBanner />
 
       {showInstructions && !loading && !isRotated && (
-        <InstructionSlide onStart={() => setShowInstructions(false)} />
+        <InstructionSlide onStart={() => setShowInstructions(false)} showFullscreenHint={fullscreenSupported} />
       )}
     </>
   );

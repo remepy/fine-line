@@ -1,8 +1,9 @@
 interface Props {
   onStart: () => void;
+  showFullscreenHint: boolean;
 }
 
-export function InstructionSlide({ onStart }: Props) {
+export function InstructionSlide({ onStart, showFullscreenHint }: Props) {
   return (
     <div className="instr-overlay" dir="rtl">
       <div className="instr-card">
@@ -12,7 +13,7 @@ export function InstructionSlide({ onStart }: Props) {
           <li>מצאו את כל ההבדלים כדי לעבור לשלב הבא.</li>
         </ul>
 
-        <p className="instr-fs-hint">
+        {showFullscreenHint && <p className="instr-fs-hint">
           לחצו על
           <span className="instr-fs-icon" aria-hidden="true">
             <svg
@@ -29,7 +30,7 @@ export function InstructionSlide({ onStart }: Props) {
             </svg>
           </span>
           להצגת התמונות במסך מלא
-        </p>
+        </p>}
 
         <button className="instr-start-btn" onClick={onStart}>
           בואו נתחיל
