@@ -690,19 +690,11 @@ html, body, #root {
   flex-direction: column;
   align-items: center;
   gap: 28px;
-  padding: 40px 48px;
+  padding: 108px 48px 40px;
   max-width: 600px;
   width: 90%;
   text-align: center;
   direction: rtl;
-}
-
-.instr-title {
-  font-size: 42px;
-  font-weight: 700;
-  color: var(--text-primary);
-  letter-spacing: 0.01em;
-  line-height: 1.2;
 }
 
 .instr-body {

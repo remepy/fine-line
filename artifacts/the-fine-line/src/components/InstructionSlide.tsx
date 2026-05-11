@@ -6,8 +6,6 @@ export function InstructionSlide({ onStart }: Props) {
   return (
     <div className="instr-overlay" dir="rtl">
       <div className="instr-card">
-        <h1 className="instr-title">מצאו את ההבדלים</h1>
-
         <ul className="instr-body">
           <li>זהו 7 הבדלים בין התמונות שעל המסך.</li>
           <li>הקישו על ההבדל שמצאתם בכל אחת מהתמונות.</li>
