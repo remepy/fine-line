@@ -9,7 +9,7 @@ export function InstructionSlide({ onStart, showFullscreenHint }: Props) {
       <div className="instr-card">
         <ul className="instr-body">
           <li>זהו 7 הבדלים בין התמונות שעל המסך.</li>
-          <li>הקישו על ההבדל שמצאתם בכל אחת מהתמונות.</li>
+          <li>מצאתם הבדל? הקישו עליו באחת התמונות.</li>
           <li>מצאו את כל ההבדלים כדי לעבור לשלב הבא.</li>
         </ul>
 
