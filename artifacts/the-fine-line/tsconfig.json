@@ -15,9 +15,5 @@
       "@assets/*": ["../../attached_assets/*"]
     }
   },
-  "references": [
-    {
-      "path": "../../lib/api-client-react"
-    }
-  ]
+  "references": []
 }
