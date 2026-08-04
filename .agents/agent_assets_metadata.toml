@@ -1,0 +1,9 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "0zzlcDSt63qbD7RklTuOn"
+uri = "file://rotate-phone-overlay.zip"
+type = "unspecified"
+title = "rotate-phone-overlay.zip"
+description = "Drop-in React component package: portrait-orientation overlay with animated phone icon, detection hook, CSS, and README."
