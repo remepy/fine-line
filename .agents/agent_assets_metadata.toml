@@ -5,5 +5,5 @@ generated = []
 id = "0zzlcDSt63qbD7RklTuOn"
 uri = "file://rotate-phone-overlay.zip"
 type = "unspecified"
-title = "rotate-phone-overlay.zip"
-description = "Drop-in React component package: portrait-orientation overlay with animated phone icon, detection hook, CSS, and README."
+title = "rotate-phone-overlay.zip (updated)"
+description = "Updated package with iOS 17 / iPhone 15 orientation fix included."
