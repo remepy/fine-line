@@ -19,5 +19,12 @@
     "original": "image-sets/flower-market/original.png",
     "modified": "image-sets/flower-market/modified.png",
     "hitmap": "image-sets/flower-market/hitmap.png"
+  },
+  {
+    "id": "sunday-at-the-bookshop-variant-2",
+    "name": "Sunday at the Bookshop Variant 2",
+    "original": "image-sets/sunday-at-the-bookshop-variant-2/original.png",
+    "modified": "image-sets/sunday-at-the-bookshop-variant-2/modified.png",
+    "hitmap": "image-sets/sunday-at-the-bookshop-variant-2/hitmap.png"
   }
 ]
