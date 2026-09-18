@@ -1,0 +1,1 @@
+- [Orientation debugging](orientation-debugging.md) — distinguish page layout from physical rotation; earlier screen-orientation-first fix did not resolve the iPhone report.
