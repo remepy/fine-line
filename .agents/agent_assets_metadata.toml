@@ -14,3 +14,31 @@ mtime_ms = 1789715398880
 storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:e36a2f66-66f1-46b9-8c66-b92585d963da/85907ea8-c598-4bb3-a991-513cb76b300d/5b8980b4-ad1b-4571-a50e-84b0a0d45e08"
 storage_version_token = "1789715461632345"
 content_type = "application/octet-stream"
+
+[[outputs]]
+id = "S-TrRGl1YLxl6xCC41LTi"
+uri = "file://deliverables/fine-line-level-maker-prd.docx"
+type = "word_document"
+title = "Level Maker PRD — Word document"
+description = "Requirements for a separate Replit project, including your confirmed choices, game-compatible assets, three essential additions, and acceptance tests."
+logical_id = "157bfc24-c5d8-4975-be5d-f267b8dddde3"
+content_hash = "sha256:749873c0f47719e51da5b3168ba4eaa3f59a9a6dff5259b5fe73393dcd042f20"
+size = 17718
+mtime_ms = 1789719355179
+storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:e36a2f66-66f1-46b9-8c66-b92585d963da/157bfc24-c5d8-4975-be5d-f267b8dddde3/70965efe-1964-474d-9d55-c76972ac6b57"
+storage_version_token = "1789719378329606"
+content_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+
+[[outputs]]
+id = "4qlIO0Ndzi2su0P8v4qn4"
+uri = "file://deliverables/fine-line-level-maker-prd.md"
+type = "text"
+title = "Level Maker PRD — Replit-ready Markdown"
+description = "The same complete specification in plain-text Markdown, ready to upload to the new Replit project."
+logical_id = "f5dbb123-b90a-4bb8-99ad-8c0065cce2e2"
+content_hash = "sha256:2ac6398a13f7c8ecf1a3d45f2b4c89376b22f29593967171eaa9882e08b48588"
+size = 34490
+mtime_ms = 1789719288038
+storage_uri = "gcs://replit-rams-assets-pike/rams/assets/repl:e36a2f66-66f1-46b9-8c66-b92585d963da/f5dbb123-b90a-4bb8-99ad-8c0065cce2e2/606cfd02-6af2-4236-b536-0065fe8eeca9"
+storage_version_token = "1789719379712036"
+content_type = "text/markdown"
