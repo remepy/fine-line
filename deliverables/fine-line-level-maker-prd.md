@@ -2,22 +2,22 @@
 
 ## Product requirements document
 
-Version: 1.0  
+Version: 1.1  
 Date: 18 September 2026  
 Status: Ready for owner review and Replit implementation scoping  
 Owner and approver: Content manager / project owner  
 Audience: Replit Agent building a separate project
 
-This document replaces and expands the supplied “Fine Line Level Maker” requirements. It preserves the requested workflow and adds a self-contained compatibility contract for The Fine Line game. It is not a request to modify or rebuild the existing game.
+This document defines the complete requirements for a standalone level generator, including its authoring workflow, AI editing, draft management, validation, and asset compatibility with The Fine Line game. The existing game must not be modified or rebuilt as part of this project.
 
-### Decision record
+### Product definition
 
-- Confirmed by the owner: desktop/laptop editor only.
-- Confirmed by the owner: seven differences per level by default; editable per level.
-- Confirmed by the owner: AI automatically chooses an appropriate visible replacement; no per-edit instruction field is required.
-- Confirmed by the owner: use a verified available image model that meets the requirements; the original model names are not mandatory.
-- Proposed implementation defaults: one content manager, English editor interface, Unicode level titles, one level edited at a time, and manual ZIP transfer to the separate game project. These are assumptions, not additional confirmed preferences.
-- Initial revision: incorporates the original requirements, owner clarifications, inspection of the current game, and provider documentation reviewed on the date above.
+- Desktop/laptop editor only.
+- Seven differences per level by default; editable per level.
+- AI automatically chooses an appropriate visible replacement; no per-edit instruction field is required.
+- Use a verified available image model that meets the generation and editing requirements.
+- One content manager, English editor interface, Unicode level titles, and one level edited at a time.
+- Manual ZIP transfer of validated assets to the separate game project.
 
 ## 1. Problem and objective
 
@@ -35,11 +35,11 @@ The practical alternative is a general-purpose image editor plus manually prepar
 - Saved drafts and completed assets survive reloads and application restarts.
 - Measure generation time separately from hands-on editing time. Do not promise a fixed AI response time or cost before testing the selected service.
 
-## 2. Scope and essential additions
+## 2. Product scope
 
-### Required by the source document
+### Required functionality
 
-- Hidden-by-default, editable generation prompt built from the supplied style.
+- Hidden-by-default, editable generation prompt built from the defined visual style.
 - Four square 2048 × 2048 candidates, each displayed as a 512 × 512 preview.
 - Separate editing window: edited image on the left, immutable original on the right.
 - Per-image zoom buttons, with 5-percentage-point increments.
@@ -47,15 +47,12 @@ The practical alternative is a general-purpose image editor plus manually prepar
 - Checkerboard display for erased pixels; cumulative PNG hitmap.
 - Undo/redo with a 20-action history and keyboard shortcuts.
 - AI “Complete” to fill erased areas with stylistically appropriate changes.
+- Accept/reject/retry for AI results, preserving the last good version and making chargeable retries explicit.
+- Autosaved drafts and a level library containing generated candidates, in-progress work, completed levels, and multi-level export selection.
+- Game-size preview and export validation covering taps, zone count, small differences, and control-obscured regions.
 - Save original, modified, and hitmap PNGs with descriptive `_A`, `_B`, and `_Hitmap` names.
-
-### Only three additional product features are proposed as essential
-
-1. **Autosaved drafts and a minimal level library.** Keep generated candidates, in-progress work, completed levels, and a multi-level export selection. Without this, creating multiple levels efficiently is fragile.
-2. **Game-size preview and export validation.** Test taps, zone count, small differences, and control-obscured regions before publishing assets to the game.
-3. **Accept/reject/retry for AI results.** A generated edit is a proposal, not an automatic overwrite. Preserve the last good version and make chargeable retries explicit.
-
-Game-ready packaging, mask separation, pixel compositing, access protection, and job recovery below are correctness requirements supporting these features—not separate expanded modules.
+- Game-ready single- and multi-level ZIP exports with safe manifest merging.
+- Separate editing and game masks, exact pixel preservation outside approved regions, protected access, and recoverable generation jobs.
 
 ### Non-goals
 
@@ -101,11 +98,11 @@ The manager can erase several separate regions before Complete, but editing one 
 
 ### GEN-03 — Style reference
 
-Use the following supplied style as the base, adapting syntax to the selected provider:
+Use the following visual style as the base, adapting syntax to the selected provider:
 
 > elegant painterly editorial illustration in the style of sophisticated magazine covers, reminiscent of The New Yorker illustration style, soft gouache texture, refined European aesthetic, calm and cultured atmosphere, warm natural lighting, muted color palette. minimal but expressive linework, subtle textures, balanced composition, clear object separation, slightly stylized realism, no cartoon, no exaggerated features, high clarity, readable shapes, gentle storytelling, mid-century influence, cinematic but soft, 3/4 perspective, designed for spot-the-difference game, uncluttered, visually calm.
 
-Add game-specific directions:
+Every generation prompt must also satisfy these game-specific requirements:
 
 - One square, edge-to-edge scene; no side-by-side comparison, panels, border, captions, labels, watermark, logo, or numbered differences.
 - Original scene only. Do not generate an original/modified pair in one request.
@@ -260,7 +257,7 @@ Show actionable errors and highlight relevant regions. Keep draft saving availab
 ## 9. Saving, library, and recovery
 
 - Minimal library: candidate preview, level title, status, target/final count, last saved time, Open Editor, and export selection. No analytics dashboard.
-- Suggested states: Candidate → Draft → Ready → Exported. A new edit to a ready/exported level returns it to Draft.
+- Lifecycle states: Candidate → Draft → Ready → Exported. A new edit to a ready/exported level returns it to Draft.
 - Autosave committed actions promptly; debounce rapid strokes. Display Saving, Saved, or Save failed truthfully.
 - Preserve immutable original, accepted composite, pending mask, accepted mask, current proposal, retained history, and job references.
 - Reloading or reopening an editor restores the last confirmed saved state. Warn on navigation when unsaved changes remain.
@@ -338,11 +335,11 @@ The current game does not discover folders automatically; it fetches `public/ima
 
 ### MODEL-01 — Verified capabilities, not assumed names
 
-Recommended starting option: **OpenAI `gpt-image-2` through Replit AI Integrations**, subject to testing the actual route in the new project.
+Start by qualifying **OpenAI `gpt-image-2` through Replit AI Integrations** using the capability checks below.
 
-Rationale: Replit's published list includes `gpt-image-2` [S2], and OpenAI documents 2048 × 2048 output and image editing for it [S1, S3]. This recommendation is based on documentation, not an executed integration test.
+Replit's published list includes `gpt-image-2` [S2], and OpenAI documents 2048 × 2048 output and image editing for it [S1, S3]. This starting choice is based on documentation, not an executed integration test.
 
-OpenAI also documents the original names `gpt-image-2.5-sunburst` and `gpt-image-2.5-flare`, recommending Sunburst where editing precision matters and Flare for faster general generation [S1]. Their availability through the selected Replit integration has not been established. They are permitted alternatives, not mandatory IDs.
+OpenAI also documents `gpt-image-2.5-sunburst` and `gpt-image-2.5-flare`, recommending Sunburst where editing precision matters and Flare for faster general generation [S1]. Their availability through the selected Replit integration has not been established. They are permitted alternatives if they pass the same capability checks.
 
 Before building the full editor, verify in the new project:
 
@@ -356,7 +353,7 @@ Prefer one verified model for generation and editing. Do not silently switch pro
 
 For custom dimensions, the reviewed OpenAI guide lists dimensional constraints that admit 2048 × 2048, but notes resolutions above 2560 × 1440 as experimental [S1]. Treat 2048-square performance and quality as a qualification risk; validate them explicitly.
 
-### TECH-01 — Suggested architecture for a separate Replit project
+### TECH-01 — Architecture for a separate Replit project
 
 - React + TypeScript desktop frontend with a canvas-based editor.
 - Server-side AI calls and image validation/compositing; no provider credentials in browser code.
@@ -365,7 +362,7 @@ For custom dimensions, the reviewed OpenAI guide lists dimensional constraints t
 - Persisted job states so generation can finish independently of an open editor window. Display progress without holding a fragile browser request open for the entire operation.
 - Long-running jobs need real persistence and recovery; an in-memory promise alone is not sufficient.
 - The generated game assets are static files. The existing game needs no connection to this database or storage service.
-- These are requirements for the new project only. Do not provision services or change the game while preparing this PRD.
+- Provision these services only in the new generator project. Do not change the existing game project.
 
 ### TECH-02 — Security and operational safeguards
 
@@ -441,13 +438,12 @@ Completion requires a working app with real generation and editing, a sample val
 
 ## 14. Remaining implementation checks
 
-No additional product clarification is required to write this PRD. Before implementation is finalized, confirm the actual integration's model and mask support, native 2048px reliability, cost/rate limits, access-control setup, and an appropriate browser memory strategy.
+Before implementation is finalized, verify the actual integration's model and mask support, native 2048px reliability, cost/rate limits, access-control setup, and an appropriate browser memory strategy.
 
-The product assumptions in the decision record remain reviewable. Do not turn them into new features or silently relax the asset contract.
+Resolve implementation limitations without expanding product scope or silently relaxing the asset contract.
 
 ## 15. Sources and evidence
 
-- **Owner source:** “Fine Line Level Maker” DOCX and the four clarification answers.
 - **Game inspection, 18 September 2026:** the image-set manifest, game loader, hitmap parser/hit tester, image renderer, overlay layout, and PNG headers. Key source files in the existing project are `public/image-sets/manifest.json`, `src/hooks/useGame.ts`, `src/lib/hitmap.ts`, `src/components/GameImage.tsx`, and `src/index.css`, under `artifacts/the-fine-line/`. These paths are provenance only; the new project need not have them.
 - **[S1] OpenAI image-generation guide:** https://developers.openai.com/api/docs/guides/image-generation?api-mode=image — models, dimensions, mask guidance, and editing limitations; reviewed 18 September 2026.
 - **[S2] Replit AI Integrations:** https://docs.replit.com/features/integrations/replit-ai-integrations — managed access and published model list; reviewed 18 September 2026. The page states its list was last refreshed 1 August 2026; verify current access in the new project.
