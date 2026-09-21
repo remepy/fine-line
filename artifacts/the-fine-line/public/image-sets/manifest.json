@@ -26,5 +26,54 @@
     "original": "image-sets/sunday-at-the-bookshop-variant-2/original.png",
     "modified": "image-sets/sunday-at-the-bookshop-variant-2/modified.png",
     "hitmap": "image-sets/sunday-at-the-bookshop-variant-2/hitmap.png"
+  },
+  {
+    "id": "the-glassblower-s-corner-variant-1-3",
+    "name": "The Glassblower's Corner Variant 1",
+    "original": "image-sets/the-glassblower-s-corner-variant-1-3/original.png",
+    "modified": "image-sets/the-glassblower-s-corner-variant-1-3/modified.png",
+    "hitmap": "image-sets/the-glassblower-s-corner-variant-1-3/hitmap.png"
+  },
+  {
+    "id": "the-seaside-table-variant-2",
+    "name": "The Seaside Table Variant 2",
+    "original": "image-sets/the-seaside-table-variant-2/original.png",
+    "modified": "image-sets/the-seaside-table-variant-2/modified.png",
+    "hitmap": "image-sets/the-seaside-table-variant-2/hitmap.png"
+  },
+  {
+    "id": "the-village-market-variant-1-2",
+    "name": "The Village Market Variant 1",
+    "original": "image-sets/the-village-market-variant-1-2/original.png",
+    "modified": "image-sets/the-village-market-variant-1-2/modified.png",
+    "hitmap": "image-sets/the-village-market-variant-1-2/hitmap.png"
+  },
+  {
+    "id": "the-weaver-s-loft-variant-2",
+    "name": "The Weaver's Loft Variant 2",
+    "original": "image-sets/the-weaver-s-loft-variant-2/original.png",
+    "modified": "image-sets/the-weaver-s-loft-variant-2/modified.png",
+    "hitmap": "image-sets/the-weaver-s-loft-variant-2/hitmap.png"
+  },
+  {
+    "id": "the-miniature-garden-variant-1",
+    "name": "The Miniature Garden Variant 1",
+    "original": "image-sets/the-miniature-garden-variant-1/original.png",
+    "modified": "image-sets/the-miniature-garden-variant-1/modified.png",
+    "hitmap": "image-sets/the-miniature-garden-variant-1/hitmap.png"
+  },
+  {
+    "id": "the-stained-glass-bench-variant-2",
+    "name": "The Stained-Glass Bench Variant 2",
+    "original": "image-sets/the-stained-glass-bench-variant-2/original.png",
+    "modified": "image-sets/the-stained-glass-bench-variant-2/modified.png",
+    "hitmap": "image-sets/the-stained-glass-bench-variant-2/hitmap.png"
+  },
+  {
+    "id": "the-cheesemaker-s-table-variant-1",
+    "name": "The Cheesemaker's Table Variant 1",
+    "original": "image-sets/the-cheesemaker-s-table-variant-1/original.png",
+    "modified": "image-sets/the-cheesemaker-s-table-variant-1/modified.png",
+    "hitmap": "image-sets/the-cheesemaker-s-table-variant-1/hitmap.png"
   }
 ]
