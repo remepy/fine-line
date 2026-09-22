@@ -82,5 +82,54 @@
     "original": "image-sets/seaside-table-spot-the-difference-1024/original.png",
     "modified": "image-sets/seaside-table-spot-the-difference-1024/modified.png",
     "hitmap": "image-sets/seaside-table-spot-the-difference-1024/hitmap.png"
+  },
+  {
+    "id": "rainy-window-breakfast",
+    "name": "Rainy Window Breakfast",
+    "original": "image-sets/rainy-window-breakfast/original.png",
+    "modified": "image-sets/rainy-window-breakfast/modified.png",
+    "hitmap": "image-sets/rainy-window-breakfast/hitmap.png"
+  },
+  {
+    "id": "mapmakers-study",
+    "name": "Mapmaker’s Study",
+    "original": "image-sets/mapmakers-study/original.png",
+    "modified": "image-sets/mapmakers-study/modified.png",
+    "hitmap": "image-sets/mapmakers-study/hitmap.png"
+  },
+  {
+    "id": "lakeside-boathouse",
+    "name": "Lakeside Boathouse",
+    "original": "image-sets/lakeside-boathouse/original.png",
+    "modified": "image-sets/lakeside-boathouse/modified.png",
+    "hitmap": "image-sets/lakeside-boathouse/hitmap.png"
+  },
+  {
+    "id": "clockmakers-bench",
+    "name": "Clockmaker’s Bench",
+    "original": "image-sets/clockmakers-bench/original.png",
+    "modified": "image-sets/clockmakers-bench/modified.png",
+    "hitmap": "image-sets/clockmakers-bench/hitmap.png"
+  },
+  {
+    "id": "terrarium-workshop-variant-1",
+    "name": "Terrarium Workshop Variant 1",
+    "original": "image-sets/terrarium-workshop-variant-1/original.png",
+    "modified": "image-sets/terrarium-workshop-variant-1/modified.png",
+    "hitmap": "image-sets/terrarium-workshop-variant-1/hitmap.png"
+  },
+  {
+    "id": "clifftop-painting-break-variant-1",
+    "name": "Clifftop Painting Break Variant 1",
+    "original": "image-sets/clifftop-painting-break-variant-1/original.png",
+    "modified": "image-sets/clifftop-painting-break-variant-1/modified.png",
+    "hitmap": "image-sets/clifftop-painting-break-variant-1/hitmap.png"
+  },
+  {
+    "id": "garden-gate-in-spring-variant-2",
+    "name": "Garden Gate in Spring Variant 2",
+    "original": "image-sets/garden-gate-in-spring-variant-2/original.png",
+    "modified": "image-sets/garden-gate-in-spring-variant-2/modified.png",
+    "hitmap": "image-sets/garden-gate-in-spring-variant-2/hitmap.png"
   }
 ]
