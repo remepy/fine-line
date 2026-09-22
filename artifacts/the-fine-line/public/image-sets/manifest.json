@@ -75,5 +75,12 @@
     "original": "image-sets/the-cheesemaker-s-table-variant-1/original.png",
     "modified": "image-sets/the-cheesemaker-s-table-variant-1/modified.png",
     "hitmap": "image-sets/the-cheesemaker-s-table-variant-1/hitmap.png"
+  },
+  {
+    "id": "seaside-table-spot-the-difference-1024",
+    "name": "Seaside Table",
+    "original": "image-sets/seaside-table-spot-the-difference-1024/original.png",
+    "modified": "image-sets/seaside-table-spot-the-difference-1024/modified.png",
+    "hitmap": "image-sets/seaside-table-spot-the-difference-1024/hitmap.png"
   }
 ]

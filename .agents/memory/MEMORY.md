@@ -1,1 +1,2 @@
+- [Level asset import validation](level-asset-import-validation.md) — validate uploaded level packs against the game's own hitmap rules before adding them; decode PNGs with stdlib only.
 - [Orientation debugging](orientation-debugging.md) — distinguish page layout from physical rotation; earlier screen-orientation-first fix did not resolve the iPhone report.
