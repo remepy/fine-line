@@ -2,27 +2,22 @@
 
 ## Overview
 
-pnpm workspace monorepo using TypeScript. Contains "The Fine Line" (הקו הדק) - a Hebrew spot-the-difference mobile web game for people with Parkinson's Disease.
+pnpm workspace using TypeScript. Contains "The Fine Line" (הקו הדק) — a Hebrew and English spot-the-difference mobile web game for people with Parkinson's Disease.
 
 ## Stack
 
-- **Monorepo tool**: pnpm workspaces
+- **Workspace tool**: pnpm workspaces
 - **Node.js version**: 24
 - **Package manager**: pnpm
 - **TypeScript version**: 5.9
-- **API framework**: Express 5
-- **Database**: PostgreSQL + Drizzle ORM
-- **Validation**: Zod (`zod/v4`), `drizzle-zod`
-- **API codegen**: Orval (from OpenAPI spec)
-- **Build**: esbuild (CJS bundle)
+- **App**: React + Vite + Tailwind CSS; no backend or database
 
 ## Key Commands
 
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- `pnpm --filter @workspace/api-server run dev` — run API server locally
+- `pnpm --filter @workspace/the-fine-line run build:languages` — build Hebrew and English static packages
+- `node --experimental-strip-types --test artifacts/the-fine-line/tests/bridge.test.mjs` — verify translation and Cyan bridge behavior
 
 See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details.
 
