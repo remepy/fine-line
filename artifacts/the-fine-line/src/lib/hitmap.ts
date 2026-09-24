@@ -1,132 +1,127 @@
-export interface Zone {
-  id: number;
-  cx: number;
-  cy: number;
-  x1: number;
-  y1: number;
-  x2: number;
-  y2: number;
-  pixelCount: number;
+import { parseHitmapPixels, type HitmapData, type Zone } from "./hitmapCore";
+import type {
+  HitmapWorkerRequest,
+  HitmapWorkerResponse,
+} from "./hitmap.worker";
+
+export type { HitmapData, Zone };
+
+/**
+ * Hitmaps are ~1-4 megapixels, so decoding and flood-filling them on the main
+ * thread stalls the UI for hundreds of milliseconds. We do the work in a
+ * worker and only fall back to the main thread if workers or OffscreenCanvas
+ * are unavailable.
+ */
+let workerHandle: Worker | null = null;
+let workerUnavailable = false;
+let nextRequestId = 0;
+const pending = new Map<
+  number,
+  { resolve: (d: HitmapData) => void; reject: (e: unknown) => void }
+>();
+
+function getWorker(): Worker | null {
+  if (workerUnavailable) return null;
+  if (workerHandle) return workerHandle;
+
+  if (typeof Worker === "undefined" || typeof OffscreenCanvas === "undefined") {
+    workerUnavailable = true;
+    return null;
+  }
+
+  try {
+    const worker = new Worker(new URL("./hitmap.worker.ts", import.meta.url), {
+      type: "module",
+    });
+
+    worker.addEventListener(
+      "message",
+      (event: MessageEvent<HitmapWorkerResponse>) => {
+        const msg = event.data;
+        const entry = pending.get(msg.id);
+        if (!entry) return;
+        pending.delete(msg.id);
+        if (msg.ok) {
+          entry.resolve({
+            zones: msg.zones,
+            width: msg.width,
+            height: msg.height,
+            pixelZoneIds: msg.pixelZoneIds,
+          });
+        } else {
+          entry.reject(new Error(msg.error));
+        }
+      },
+    );
+
+    worker.addEventListener("error", (event) => {
+      // The worker is dead; fail everything queued on it and never use it
+      // again, so later calls transparently take the main-thread path.
+      const err = new Error(event.message || "hitmap worker error");
+      for (const entry of pending.values()) entry.reject(err);
+      pending.clear();
+      workerUnavailable = true;
+      workerHandle = null;
+      worker.terminate();
+    });
+
+    workerHandle = worker;
+    return worker;
+  } catch {
+    workerUnavailable = true;
+    return null;
+  }
 }
 
-export interface HitmapData {
-  zones: Zone[];
-  width: number;
-  height: number;
-  pixels: Uint8ClampedArray;
-  /**
-   * For every pixel index (y * width + x), the id of the zone that owns it,
-   * or -1 if the pixel is background. This is the authoritative "which zone
-   * does this pixel belong to" lookup — bounding boxes can overlap between
-   * unrelated zones and must NEVER be used for this question.
-   */
-  pixelZoneIds: Int16Array;
+function parseInWorker(
+  worker: Worker,
+  hitmapUrl: string,
+): Promise<HitmapData> {
+  return new Promise((resolve, reject) => {
+    const id = ++nextRequestId;
+    pending.set(id, { resolve, reject });
+    const request: HitmapWorkerRequest = { id, url: hitmapUrl };
+    worker.postMessage(request);
+  });
 }
 
-// White/near-white = difference zone; everything else = background
-function isWhite(r: number, g: number, b: number, a: number): boolean {
-  return a >= 30 && r > 200 && g > 200 && b > 200;
-}
-
-export async function parseHitmap(hitmapUrl: string): Promise<HitmapData> {
+function parseOnMainThread(hitmapUrl: string): Promise<HitmapData> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
       const canvas = document.createElement("canvas");
       canvas.width = img.width;
       canvas.height = img.height;
-      const ctx = canvas.getContext("2d");
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
       if (!ctx) return reject(new Error("no canvas ctx"));
       ctx.drawImage(img, 0, 0);
 
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const { data, width, height } = imageData;
-      const visited = new Uint8Array(width * height);
-      const pixelZoneIds = new Int16Array(width * height).fill(-1);
-      const zones: Zone[] = [];
-      let nextZoneId = 0;
-
-      for (let i = 0; i < width * height; i++) {
-        const r = data[i * 4];
-        const g = data[i * 4 + 1];
-        const b = data[i * 4 + 2];
-        const a = data[i * 4 + 3];
-        if (visited[i] || !isWhite(r, g, b, a)) continue;
-
-        const queue: number[] = [i];
-        const pixels: number[] = [];
-        visited[i] = 1;
-        const zoneId = nextZoneId;
-
-        while (queue.length > 0) {
-          const curr = queue.shift()!;
-          pixels.push(curr);
-          const x = curr % width;
-          const y = Math.floor(curr / width);
-
-          const neighbors = [
-            x > 0 ? curr - 1 : -1,
-            x < width - 1 ? curr + 1 : -1,
-            y > 0 ? curr - width : -1,
-            y < height - 1 ? curr + width : -1,
-            x > 0 && y > 0 ? curr - width - 1 : -1,
-            x < width - 1 && y > 0 ? curr - width + 1 : -1,
-            x > 0 && y < height - 1 ? curr + width - 1 : -1,
-            x < width - 1 && y < height - 1 ? curr + width + 1 : -1,
-          ];
-
-          for (const n of neighbors) {
-            if (n < 0 || visited[n]) continue;
-            const nr = data[n * 4];
-            const ng = data[n * 4 + 1];
-            const nb = data[n * 4 + 2];
-            const na = data[n * 4 + 3];
-            if (isWhite(nr, ng, nb, na)) {
-              visited[n] = 1;
-              queue.push(n);
-            }
-          }
-        }
-
-        if (pixels.length < 4) continue;
-
-        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-        let sumX = 0, sumY = 0;
-
-        for (const p of pixels) {
-          const px = p % width;
-          const py = Math.floor(p / width);
-          if (px < minX) minX = px;
-          if (px > maxX) maxX = px;
-          if (py < minY) minY = py;
-          if (py > maxY) maxY = py;
-          sumX += px;
-          sumY += py;
-          pixelZoneIds[p] = zoneId;
-        }
-
-        zones.push({
-          id: zoneId,
-          cx: sumX / pixels.length / width,
-          cy: sumY / pixels.length / height,
-          x1: minX / width,
-          y1: minY / height,
-          x2: maxX / width,
-          y2: maxY / height,
-          pixelCount: pixels.length,
-        });
-        nextZoneId++;
-      }
-
-      // Sort by size for marker color rotation, but keep zone.id stable so
-      // pixelZoneIds remains a valid lookup.
-      zones.sort((a, b) => b.pixelCount - a.pixelCount);
-
-      resolve({ zones, width, height, pixels: data, pixelZoneIds });
+      const { data, width, height } = ctx.getImageData(
+        0,
+        0,
+        canvas.width,
+        canvas.height,
+      );
+      resolve(parseHitmapPixels(data, width, height));
     };
     img.onerror = (e) => reject(e);
     img.src = hitmapUrl;
   });
+}
+
+export async function parseHitmap(hitmapUrl: string): Promise<HitmapData> {
+  const worker = getWorker();
+  if (worker) {
+    try {
+      return await parseInWorker(worker, hitmapUrl);
+    } catch (err) {
+      // A genuine 404 should surface, but if the worker itself fell over we
+      // still want the level to load.
+      if (!workerUnavailable) throw err;
+    }
+  }
+  console.debug("hitmap: worker unavailable, parsing on the main thread");
+  return parseOnMainThread(hitmapUrl);
 }
 
 /**

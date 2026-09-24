@@ -36,23 +36,35 @@ A spot-the-difference mobile web game in Hebrew with RTL support, targeting peop
 
 - **No backend** — fully frontend, no database needed
 - **Image sets**: `public/image-sets/manifest.json` — list of available sets
-- **Hitmap parsing**: `src/lib/hitmap.ts` — canvas-based connected component analysis
+- **Hitmap parsing**: `src/lib/hitmapCore.ts` (pure, DOM-free connected component analysis), run inside `src/lib/hitmap.worker.ts` so it never blocks the UI; `src/lib/hitmap.ts` is the public API (worker, with a main-thread fallback) plus `checkHit`
+- **Level loading & prefetch**: `src/lib/levelAssets.ts` — caches decoded artwork and parsed hitmaps, and warms the next level while the current one is played
 - **Game state**: `src/hooks/useGame.ts` — loading, zones, tap detection, hints
 - **Main page**: `src/pages/GamePage.tsx`
 - **Components**: `GameImage`, `Sparkle`, `SuccessModal`
 
+### Image Set Assets
+
+Artwork is shipped as lossy WebP; the hitmap stays a lossless PNG.
+
+- `asset-sources/image-sets/<set-id>/{original,modified}.png` — full-quality masters. **Not** served; they exist only to regenerate the WebP files.
+- `public/image-sets/<set-id>/{original,modified}.webp` — generated, what the browser downloads (~10x smaller than the PNG masters).
+- `public/image-sets/<set-id>/hitmap.png` — authored by hand, lossless, never re-encoded. Lossy compression could alter the white-pixel mask and change the zone count, so `scripts/optimize-image-sets.mjs` deliberately leaves it alone.
+
 ### Adding More Image Sets
 
-1. Create folder `public/image-sets/<set-id>/` with `original.png`, `modified.png`, `hitmap.png`
-2. Add an entry to `public/image-sets/manifest.json`
-3. The hitmap should have colored (non-white) pixels marking the difference regions
+1. Put `original.png` and `modified.png` in `asset-sources/image-sets/<set-id>/`
+2. Put `hitmap.png` directly in `public/image-sets/<set-id>/`
+3. Run `node scripts/optimize-image-sets.mjs` to generate the WebP files (add `--force` to re-encode everything)
+4. Add an entry to `public/image-sets/manifest.json` pointing at `original.webp` / `modified.webp` / `hitmap.png`
+5. The hitmap should have white pixels marking the difference regions
 
 ### Hitmap Format
 
 - White pixels (`R>200, G>200, B>200`, `alpha >= 30`) = difference zone mask
 - Anything else (including transparent pixels) = background
 - Connected white pixels are grouped into zones via BFS (8-neighbour)
-- Zones with fewer than 4 pixels are filtered as noise
+- Zones with fewer than 4 pixels are filtered as noise, without consuming a zone id
+- These rules are load-bearing: changing the white test, the connectivity, or the noise threshold changes how many differences each level has
 - Hit detection (`src/lib/hitmap.ts:checkHit`) reads the raw pixel data and registers a hit only when there is a white mask pixel within a **5 display-pixel radius** of the tap (scaled to hitmap-pixel space via the displayed image dimensions). This is fully pixel-accurate, not bounding-box based.
 
 ### Layout & Orientation

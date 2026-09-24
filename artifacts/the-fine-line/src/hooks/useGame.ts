@@ -1,7 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { parseHitmap, HitmapData, checkHit } from "../lib/hitmap";
 import type { BridgeSession } from "../lib/cyanBridge";
 import { reportError } from "../lib/cyanBridge";
+import { HitmapData, checkHit } from "../lib/hitmap";
+import {
+  isLevelReady,
+  loadLevelAssets,
+  prefetchLevelAssets,
+  type LevelAssetSet,
+} from "../lib/levelAssets";
 
 export interface ImageSet {
   id: string;
@@ -31,6 +37,28 @@ function buildUrl(path: string) {
   return `${BASE}${path}`;
 }
 
+function assetUrls(set: ImageSet): LevelAssetSet {
+  return {
+    original: buildUrl(set.original),
+    modified: buildUrl(set.modified),
+    hitmap: buildUrl(set.hitmap),
+  };
+}
+
+/**
+ * Which set a level maps to. A bridge session names its levels explicitly;
+ * standalone play just cycles through the catalogue.
+ */
+function pickSet(
+  sets: ImageSet[],
+  lvl: number,
+  selectedId?: string
+): ImageSet | undefined {
+  return selectedId
+    ? sets.find((entry) => entry.id === selectedId)
+    : sets[(lvl - 1) % sets.length];
+}
+
 export function useGame(session: BridgeSession | null, active: boolean, paused: boolean) {
   const [allSets, setAllSets] = useState<ImageSet[]>([]);
   const [level, setLevel] = useState(1);
@@ -58,22 +86,24 @@ export function useGame(session: BridgeSession | null, active: boolean, paused: 
     async (sets: ImageSet[], lvl: number, selectedId?: string) => {
       if (sets.length === 0) return;
       const token = ++loadToken.current;
-      setLoading(true);
+
+      const set = pickSet(sets, lvl, selectedId);
+      if (!set) { reportError("unknown_level"); return; }
+      const urls = assetUrls(set);
+
       setHitmapData(null);
       setRevealedMarkers([]);
       setSparks([]);
       setMistakes(0);
       setHints(0);
-
-      const set = selectedId
-        ? sets.find((entry) => entry.id === selectedId)
-        : sets[(lvl - 1) % sets.length];
-      if (!set) { reportError("unknown_level"); return; }
       setImageSet(set);
       setLevel(lvl);
+      // A prefetched level has nothing left to wait for, so skip the spinner
+      // rather than flashing it for a frame.
+      setLoading(!isLevelReady(urls));
 
       try {
-        const parsed = await parseHitmap(buildUrl(set.hitmap));
+        const parsed = await loadLevelAssets(urls);
         if (token !== loadToken.current) return;
         if (parsed.zones.length === 0) throw new Error("empty_hitmap");
         setHitmapData(parsed);
@@ -93,6 +123,17 @@ export function useGame(session: BridgeSession | null, active: boolean, paused: 
     }
     return () => { loadToken.current++; };
   }, [allSets, loadLevel, active, session]);
+
+  // Pull the next level down in the background while this one is played, so
+  // advancing feels instant. Runs once the current level has settled so it
+  // never competes with it for bandwidth.
+  useEffect(() => {
+    if (loading || !active || allSets.length === 0) return;
+    const next = level + 1;
+    if (session && next > session.levelIds.length) return;
+    const nextSet = pickSet(allSets, next, session?.levelIds[next - 1]);
+    if (nextSet) prefetchLevelAssets(assetUrls(nextSet));
+  }, [allSets, level, loading, active, session]);
 
   const addSpark = useCallback((x: number, y: number, success: boolean) => {
     const id = ++sparkIdRef.current;

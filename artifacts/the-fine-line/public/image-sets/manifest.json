@@ -2,134 +2,134 @@
   {
     "id": "walk-in-park",
     "name": "Walk In Park",
-    "original": "image-sets/walk-in-park/original.png",
-    "modified": "image-sets/walk-in-park/modified.png",
+    "original": "image-sets/walk-in-park/original.webp",
+    "modified": "image-sets/walk-in-park/modified.webp",
     "hitmap": "image-sets/walk-in-park/hitmap.png"
   },
   {
     "id": "seaside-terrace",
     "name": "Seaside Terrace",
-    "original": "image-sets/seaside-terrace/original.png",
-    "modified": "image-sets/seaside-terrace/modified.png",
+    "original": "image-sets/seaside-terrace/original.webp",
+    "modified": "image-sets/seaside-terrace/modified.webp",
     "hitmap": "image-sets/seaside-terrace/hitmap.png"
   },
   {
     "id": "flower-market",
     "name": "Flower Market",
-    "original": "image-sets/flower-market/original.png",
-    "modified": "image-sets/flower-market/modified.png",
+    "original": "image-sets/flower-market/original.webp",
+    "modified": "image-sets/flower-market/modified.webp",
     "hitmap": "image-sets/flower-market/hitmap.png"
   },
   {
     "id": "sunday-at-the-bookshop-variant-2",
     "name": "Sunday at the Bookshop Variant 2",
-    "original": "image-sets/sunday-at-the-bookshop-variant-2/original.png",
-    "modified": "image-sets/sunday-at-the-bookshop-variant-2/modified.png",
+    "original": "image-sets/sunday-at-the-bookshop-variant-2/original.webp",
+    "modified": "image-sets/sunday-at-the-bookshop-variant-2/modified.webp",
     "hitmap": "image-sets/sunday-at-the-bookshop-variant-2/hitmap.png"
   },
   {
     "id": "the-glassblower-s-corner-variant-1-3",
     "name": "The Glassblower's Corner Variant 1",
-    "original": "image-sets/the-glassblower-s-corner-variant-1-3/original.png",
-    "modified": "image-sets/the-glassblower-s-corner-variant-1-3/modified.png",
+    "original": "image-sets/the-glassblower-s-corner-variant-1-3/original.webp",
+    "modified": "image-sets/the-glassblower-s-corner-variant-1-3/modified.webp",
     "hitmap": "image-sets/the-glassblower-s-corner-variant-1-3/hitmap.png"
   },
   {
     "id": "the-seaside-table-variant-2",
     "name": "The Seaside Table Variant 2",
-    "original": "image-sets/the-seaside-table-variant-2/original.png",
-    "modified": "image-sets/the-seaside-table-variant-2/modified.png",
+    "original": "image-sets/the-seaside-table-variant-2/original.webp",
+    "modified": "image-sets/the-seaside-table-variant-2/modified.webp",
     "hitmap": "image-sets/the-seaside-table-variant-2/hitmap.png"
   },
   {
     "id": "the-village-market-variant-1-2",
     "name": "The Village Market Variant 1",
-    "original": "image-sets/the-village-market-variant-1-2/original.png",
-    "modified": "image-sets/the-village-market-variant-1-2/modified.png",
+    "original": "image-sets/the-village-market-variant-1-2/original.webp",
+    "modified": "image-sets/the-village-market-variant-1-2/modified.webp",
     "hitmap": "image-sets/the-village-market-variant-1-2/hitmap.png"
   },
   {
     "id": "the-weaver-s-loft-variant-2",
     "name": "The Weaver's Loft Variant 2",
-    "original": "image-sets/the-weaver-s-loft-variant-2/original.png",
-    "modified": "image-sets/the-weaver-s-loft-variant-2/modified.png",
+    "original": "image-sets/the-weaver-s-loft-variant-2/original.webp",
+    "modified": "image-sets/the-weaver-s-loft-variant-2/modified.webp",
     "hitmap": "image-sets/the-weaver-s-loft-variant-2/hitmap.png"
   },
   {
     "id": "the-miniature-garden-variant-1",
     "name": "The Miniature Garden Variant 1",
-    "original": "image-sets/the-miniature-garden-variant-1/original.png",
-    "modified": "image-sets/the-miniature-garden-variant-1/modified.png",
+    "original": "image-sets/the-miniature-garden-variant-1/original.webp",
+    "modified": "image-sets/the-miniature-garden-variant-1/modified.webp",
     "hitmap": "image-sets/the-miniature-garden-variant-1/hitmap.png"
   },
   {
     "id": "the-stained-glass-bench-variant-2",
     "name": "The Stained-Glass Bench Variant 2",
-    "original": "image-sets/the-stained-glass-bench-variant-2/original.png",
-    "modified": "image-sets/the-stained-glass-bench-variant-2/modified.png",
+    "original": "image-sets/the-stained-glass-bench-variant-2/original.webp",
+    "modified": "image-sets/the-stained-glass-bench-variant-2/modified.webp",
     "hitmap": "image-sets/the-stained-glass-bench-variant-2/hitmap.png"
   },
   {
     "id": "the-cheesemaker-s-table-variant-1",
     "name": "The Cheesemaker's Table Variant 1",
-    "original": "image-sets/the-cheesemaker-s-table-variant-1/original.png",
-    "modified": "image-sets/the-cheesemaker-s-table-variant-1/modified.png",
+    "original": "image-sets/the-cheesemaker-s-table-variant-1/original.webp",
+    "modified": "image-sets/the-cheesemaker-s-table-variant-1/modified.webp",
     "hitmap": "image-sets/the-cheesemaker-s-table-variant-1/hitmap.png"
   },
   {
     "id": "seaside-table-spot-the-difference-1024",
     "name": "Seaside Table",
-    "original": "image-sets/seaside-table-spot-the-difference-1024/original.png",
-    "modified": "image-sets/seaside-table-spot-the-difference-1024/modified.png",
+    "original": "image-sets/seaside-table-spot-the-difference-1024/original.webp",
+    "modified": "image-sets/seaside-table-spot-the-difference-1024/modified.webp",
     "hitmap": "image-sets/seaside-table-spot-the-difference-1024/hitmap.png"
   },
   {
     "id": "rainy-window-breakfast",
     "name": "Rainy Window Breakfast",
-    "original": "image-sets/rainy-window-breakfast/original.png",
-    "modified": "image-sets/rainy-window-breakfast/modified.png",
+    "original": "image-sets/rainy-window-breakfast/original.webp",
+    "modified": "image-sets/rainy-window-breakfast/modified.webp",
     "hitmap": "image-sets/rainy-window-breakfast/hitmap.png"
   },
   {
     "id": "mapmakers-study",
     "name": "Mapmaker’s Study",
-    "original": "image-sets/mapmakers-study/original.png",
-    "modified": "image-sets/mapmakers-study/modified.png",
+    "original": "image-sets/mapmakers-study/original.webp",
+    "modified": "image-sets/mapmakers-study/modified.webp",
     "hitmap": "image-sets/mapmakers-study/hitmap.png"
   },
   {
     "id": "lakeside-boathouse",
     "name": "Lakeside Boathouse",
-    "original": "image-sets/lakeside-boathouse/original.png",
-    "modified": "image-sets/lakeside-boathouse/modified.png",
+    "original": "image-sets/lakeside-boathouse/original.webp",
+    "modified": "image-sets/lakeside-boathouse/modified.webp",
     "hitmap": "image-sets/lakeside-boathouse/hitmap.png"
   },
   {
     "id": "clockmakers-bench",
     "name": "Clockmaker’s Bench",
-    "original": "image-sets/clockmakers-bench/original.png",
-    "modified": "image-sets/clockmakers-bench/modified.png",
+    "original": "image-sets/clockmakers-bench/original.webp",
+    "modified": "image-sets/clockmakers-bench/modified.webp",
     "hitmap": "image-sets/clockmakers-bench/hitmap.png"
   },
   {
     "id": "terrarium-workshop-variant-1",
     "name": "Terrarium Workshop Variant 1",
-    "original": "image-sets/terrarium-workshop-variant-1/original.png",
-    "modified": "image-sets/terrarium-workshop-variant-1/modified.png",
+    "original": "image-sets/terrarium-workshop-variant-1/original.webp",
+    "modified": "image-sets/terrarium-workshop-variant-1/modified.webp",
     "hitmap": "image-sets/terrarium-workshop-variant-1/hitmap.png"
   },
   {
     "id": "clifftop-painting-break-variant-1",
     "name": "Clifftop Painting Break Variant 1",
-    "original": "image-sets/clifftop-painting-break-variant-1/original.png",
-    "modified": "image-sets/clifftop-painting-break-variant-1/modified.png",
+    "original": "image-sets/clifftop-painting-break-variant-1/original.webp",
+    "modified": "image-sets/clifftop-painting-break-variant-1/modified.webp",
     "hitmap": "image-sets/clifftop-painting-break-variant-1/hitmap.png"
   },
   {
     "id": "garden-gate-in-spring-variant-2",
     "name": "Garden Gate in Spring Variant 2",
-    "original": "image-sets/garden-gate-in-spring-variant-2/original.png",
-    "modified": "image-sets/garden-gate-in-spring-variant-2/modified.png",
+    "original": "image-sets/garden-gate-in-spring-variant-2/original.webp",
+    "modified": "image-sets/garden-gate-in-spring-variant-2/modified.webp",
     "hitmap": "image-sets/garden-gate-in-spring-variant-2/hitmap.png"
   }
 ]
