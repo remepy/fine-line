@@ -1,11 +1,11 @@
 import { spawnSync } from "node:child_process";
-import { readFile, writeFile, copyFile } from "node:fs/promises";
+import { readFile, writeFile, unlink } from "node:fs/promises";
 import path from "node:path";
 
 const root = path.resolve(import.meta.dirname, "..");
 const languages = [
-  { lang: "he", translation: "public/translations.json" },
-  { lang: "en", translation: "translations/en.json" },
+  { lang: "he", translation: "public/translations_he.json" },
+  { lang: "en", translation: "public/translations_en.json" },
 ];
 
 for (const { lang, translation } of languages) {
@@ -15,7 +15,7 @@ for (const { lang, translation } of languages) {
     "exec", "vite", "build", "--config", "vite.config.ts", "--outDir", output,
   ], {
     cwd: root,
-    env: { ...process.env, BASE_PATH: base },
+    env: { ...process.env, BASE_PATH: base, VITE_GAME_LANGUAGE: lang },
     stdio: "inherit",
   });
   if (result.error) throw result.error;
@@ -26,7 +26,8 @@ for (const { lang, translation } of languages) {
       strings.dir !== (lang === "he" ? "rtl" : "ltr")) {
     throw new Error(`Invalid language metadata for ${lang}`);
   }
-  await copyFile(path.join(root, translation), path.join(output, "translations.json"));
+  // Vite copies public files into each build. Ship only this build's copy.
+  await unlink(path.join(output, `translations_${lang === "he" ? "en" : "he"}.json`));
   const manifestFile = path.join(output, "manifest.json");
   const manifest = JSON.parse(await readFile(manifestFile, "utf8"));
   manifest.name = strings.keys.title;

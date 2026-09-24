@@ -8,10 +8,11 @@ language-specific URL:
 https://<cdn>/games/the-fine-line/{lang}/index.html
 ```
 
-Substitute `he` or `en` for `{lang}`. Each page fetches its own
-`./translations.json` before defining `window.cyanBridge.receive` and sending
+Substitute `he` or `en` for `{lang}`. The Hebrew build fetches
+`./translations_he.json`; the English build fetches `./translations_en.json`.
+It does so before defining `window.cyanBridge.receive` and sending
 `game_ready`. This file supplies `locale`, `dir`, and every UI copy key. The game
-does not determine language from the URL or from the app's session.
+selects the filename at build time, not from the URL or the app's session.
 If the file cannot be fetched or is incomplete/invalid, it sends
 `game_error` with code `translations_unavailable`, renders nothing, and does
 not send `game_ready`. Copy and URL paths must not reveal participant groups.
@@ -77,14 +78,15 @@ Run `pnpm --filter @workspace/the-fine-line build:languages`. Upload the
 **contents** of `artifacts/the-fine-line/dist/languages/he/` to
 `games/the-fine-line/he/` on S3, and likewise `dist/languages/en/` to
 `games/the-fine-line/en/`. Both builds have the corresponding absolute
-asset base baked in. Keep each `translations.json` and `image-sets/`
+asset base baked in. Keep the corresponding `translations_he.json` or
+`translations_en.json` and `image-sets/`
 directory alongside that language's `index.html`. The existing `build`
 command still produces the Hebrew-at-root Replit preview in `dist/public/`.
 
-The editable source files are `public/translations.json` (Hebrew) and
-`translations/en.json` (English). To update copy on S3 without rebuilding,
-replace the appropriate deployed `translations.json` only, preserving its
-`locale`, `dir`, and all keys. Serve `index.html` and `translations.json`
+The editable source files are `public/translations_he.json` and
+`public/translations_en.json`. To update copy on S3 without rebuilding,
+replace the appropriate deployed language file only, preserving its
+`locale`, `dir`, and all keys. Serve `index.html` and the matching translation file
 with `Cache-Control: no-cache`; content-hashed `assets/*` can use
 `public, max-age=31536000, immutable`. Invalidate other changed catalogue
 files as needed. The Flutter app owns URL-template substitution and

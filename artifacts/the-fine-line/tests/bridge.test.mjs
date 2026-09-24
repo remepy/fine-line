@@ -3,23 +3,23 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { loadLanguage, getLanguage, copy } from "../src/lib/copy.ts";
 
-const he = JSON.parse(await readFile(new URL("../public/translations.json", import.meta.url)));
-const en = JSON.parse(await readFile(new URL("../translations/en.json", import.meta.url)));
+const he = JSON.parse(await readFile(new URL("../public/translations_he.json", import.meta.url)));
+const en = JSON.parse(await readFile(new URL("../public/translations_en.json", import.meta.url)));
 
 async function freshBridge(host) {
   globalThis.window = host ? { CyanGameBridge: host } : {};
   return import(`../src/lib/cyanBridge.ts?case=${Math.random()}`);
 }
 
-async function useLanguage(data) {
+async function useLanguage(data, lang = data.locale === "en-US" ? "en" : "he") {
   const previous = globalThis.fetch;
   globalThis.fetch = async (url, options) => {
-    assert.equal(url, "./translations.json");
+    assert.equal(url, `./translations_${lang}.json`);
     assert.equal(options.cache, "no-cache");
     assert.ok(options.signal instanceof AbortSignal);
     return { ok: true, json: async () => data };
   };
-  try { return await loadLanguage(); }
+  try { return await loadLanguage(lang); }
   finally { globalThis.fetch = previous; }
 }
 
@@ -42,6 +42,7 @@ test("both language files provide all copy, locale and direction", async () => {
   assert.equal(getLanguage().dir, "ltr");
   assert.equal(copy(null, "title"), "The Fine Line");
   assert.equal(copy(null, "differences", 4), "Find 4 differences");
+  await assert.rejects(useLanguage(he, "en"), /translations_unavailable/);
 });
 
 test("standalone waits for copy and posts nothing", async () => {
@@ -137,7 +138,7 @@ test("missing or invalid copy cannot be shown or followed by game_ready", async 
   }
   const previous = globalThis.fetch;
   globalThis.fetch = async (url) => {
-    assert.equal(url, "./translations.json");
+    assert.equal(url, "./translations_he.json");
     return { ok: false, status: 404 };
   };
   try {
@@ -154,7 +155,7 @@ test("unresponsive translation file is aborted before gameplay starts", async ()
   const previous = globalThis.fetch;
   let aborted = false;
   globalThis.fetch = (url, { signal }) => {
-    assert.equal(url, "./translations.json");
+    assert.equal(url, "./translations_he.json");
     return new Promise((_resolve, reject) => {
       signal.addEventListener("abort", () => {
         aborted = true;
