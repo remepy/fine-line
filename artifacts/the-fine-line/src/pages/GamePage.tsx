@@ -151,7 +151,7 @@ export default function GamePage() {
               </div>
               <button
                 type="button"
-                className={`music-toggle ${musicPlaying ? "is-on" : "is-off"}`}
+                className={`top-control music-toggle ${musicPlaying ? "is-on" : "is-off"}`}
                 onClick={toggleMusic}
                 title={copy(session, musicPlaying ? "musicOn" : "musicOff")}
                 aria-label={copy(session, musicPlaying ? "musicOn" : "musicOff")}
@@ -173,7 +173,7 @@ export default function GamePage() {
               </button>
               <button
                 type="button"
-                className="help-button"
+                className="top-control help-button"
                 onClick={() => setHelpOpen(true)}
                 aria-label={copy(session, "help")}
                 aria-haspopup="dialog"
