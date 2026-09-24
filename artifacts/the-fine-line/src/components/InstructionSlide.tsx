@@ -8,7 +8,7 @@ interface Props {
 
 export function InstructionSlide({ onStart, onExit, session }: Props) {
   return (
-    <div className="instr-overlay">
+    <div className="instr-overlay" role="dialog" aria-modal="true" aria-label={copy(session, "help")}>
       <div className="instr-card">
         <ul className="instr-body">
           <li>{copy(session, "instruction1")}</li>
@@ -16,7 +16,7 @@ export function InstructionSlide({ onStart, onExit, session }: Props) {
           <li>{copy(session, "instruction3")}</li>
         </ul>
 
-        <button className="instr-start-btn" onClick={onStart}>
+        <button className="instr-start-btn" onClick={onStart} autoFocus>
           {copy(session, "start")}
         </button>
         {session && <button type="button" className="instr-exit-btn" onClick={onExit}>

@@ -2,7 +2,7 @@
 // React mounts or game_ready is sent. There are deliberately no copy fallbacks.
 export const copyKeys = [
   "title", "loading", "original", "modified", "differences",
-  "hint", "musicOn", "musicOff", "quit",
+  "hint", "help", "musicOn", "musicOff", "quit",
   "success", "complete", "next", "instruction1", "instruction2",
   "instruction3", "start", "rotate", "paused",
   "unavailable", "addToHomeBeforeShare", "addToHomeAfterShare",

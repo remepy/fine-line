@@ -42,9 +42,10 @@ export default function GamePage() {
     catch { return true; }
   });
   const [tutorialDismissed, setTutorialDismissed] = useState(false);
-  const showInstructions = session
+  const [helpOpen, setHelpOpen] = useState(false);
+  const showInstructions = helpOpen || (session
     ? !session.tutorialSeen && !tutorialDismissed
-    : tutorialStored && !tutorialDismissed;
+    : tutorialStored && !tutorialDismissed);
   const reportedLevel = useRef<number | null>(null);
   useEffect(() => {
     if (!session || !allFound || bridge.paused || bridge.status !== "active" ||
@@ -137,7 +138,7 @@ export default function GamePage() {
             </div>
           )}
 
-          {/* Top-left (RTL trailing): score + music toggle — always visible */}
+          {/* Top-left (RTL trailing): score, music and help — always visible */}
           <div className="overlay overlay-score">
               <div className="score-pill" dir="ltr">
                 {diffCount > 0 && (
@@ -169,6 +170,14 @@ export default function GamePage() {
                 {!musicPlaying && (
                   <span className="music-slash" aria-hidden="true" />
                 )}
+              </button>
+              <button
+                type="button"
+                className="help-button"
+                onClick={() => setHelpOpen(true)}
+                aria-haspopup="dialog"
+              >
+                {copy(session, "help")}
               </button>
           </div>
           {bridge.embedded && <button className="bridge-quit" type="button" onClick={requestExit}
@@ -230,8 +239,9 @@ export default function GamePage() {
       <PortraitOverlay visible={isRotated} session={session} />
       {!bridge.embedded && <A2HSBanner />}
 
-      {showInstructions && !loading && !isRotated && (
+      {showInstructions && (!loading || helpOpen) && !isRotated && (
         <InstructionSlide onStart={() => {
+          setHelpOpen(false);
           setTutorialDismissed(true);
           try { localStorage.setItem("the-fine-line-tutorial-seen", "1"); } catch { /* storage may be disabled */ }
         }} onExit={requestExit} session={session} />

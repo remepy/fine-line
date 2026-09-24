@@ -258,7 +258,7 @@ html, body, #root {
   transform: scale(1.1);
 }
 
-/* Top-left (RTL trailing): score + music toggle */
+/* Top-left (RTL trailing): score, music and help */
 .overlay-score {
   top: max(8px, var(--safe-top));
   left: max(10px, var(--safe-left));
@@ -266,6 +266,27 @@ html, body, #root {
   align-items: center;
   gap: 8px;
 }
+
+.help-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid #fff;
+  border-radius: 999px;
+  background: #fff;
+  color: #0f172a;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.help-button:hover { background: #e2e8f0; }
+.help-button:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 
 .score-pill {
   display: flex;
@@ -411,33 +432,34 @@ html, body, #root {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
 }
 
-/* Bottom center: the prompt crosses the divider into both image halves */
+/* Bottom center: a compact, non-interactive prompt over the image divider */
 .overlay-subtitle {
   position: absolute;
   z-index: 20;
   bottom: max(12px, var(--safe-bottom));
   left: 50%;
   transform: translateX(-50%);
-  width: min(40%, 360px);
-  padding: 6px 12px;
+  width: max-content;
+  max-width: calc(100% - 160px);
+  padding: 4px 9px;
   background: var(--overlay-bg);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid var(--overlay-border);
   border-radius: 999px;
-  font-size: 16px;
+  font-size: 14px;
   color: #ffffff;
   pointer-events: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
   white-space: nowrap;
 }
 
 .tap-icon {
-  width: 18px;
-  height: 18px;
+  width: 15px;
+  height: 15px;
   flex-shrink: 0;
   opacity: 1;
   color: #ffffff;
