@@ -1,60 +1,60 @@
-import type { BridgeSession } from "./cyanBridge";
+// Translation data is loaded from the page's own translations.json before
+// React mounts or game_ready is sent. There are deliberately no copy fallbacks.
+export const copyKeys = [
+  "title", "level", "loading", "original", "modified", "differences",
+  "hint", "musicOn", "musicOff", "fullscreenOn", "fullscreenOff", "quit",
+  "success", "complete", "next", "instruction1", "instruction2",
+  "instruction3", "fullscreenHint", "start", "rotate", "paused",
+  "unavailable", "addToHomeBeforeShare", "addToHomeAfterShare",
+  "share", "dismiss", "appDescription",
+] as const;
 
-const he = {
-  title: "הקו הדק",
-  level: "שלב {n}",
-  loading: "טוען תמונות...",
-  original: "תמונה מקורית",
-  modified: "תמונה שונה",
-  differences: "זהו {n} הבדלים",
-  hint: "רמז",
-  musicOn: "השתק מוזיקה",
-  musicOff: "הפעל מוזיקה",
-  fullscreenOn: "צא ממסך מלא",
-  fullscreenOff: "מסך מלא",
-  quit: "יציאה מהמשחק",
-  success: "יפה מאוד, זיהיתם את כל ההבדלים!",
-  complete: "שלב {n} הושלם",
-  next: "לשלב הבא ←",
-  instruction1: "זהו 7 הבדלים בין התמונות שעל המסך.",
-  instruction2: "נמצא הבדל? הקישו עליו באחת התמונות.",
-  instruction3: "מצאו את כל ההבדלים כדי לעבור לשלב הבא.",
-  fullscreenHint: "לחצו על הסמל להצגת התמונות במסך מלא",
-  start: "בואו נתחיל",
-  rotate: "סובבו את הטלפון למצב מאוזן",
-  paused: "המשחק מושהה",
-  unavailable: "המשחק אינו זמין כעת",
+export type CopyKey = typeof copyKeys[number];
+export type Language = {
+  locale: "he-IL" | "en-US";
+  dir: "rtl" | "ltr";
+  keys: Record<CopyKey, string>;
 };
 
-const en: typeof he = {
-  title: "The Fine Line",
-  level: "Level {n}",
-  loading: "Loading images...",
-  original: "Original image",
-  modified: "Changed image",
-  differences: "Find {n} differences",
-  hint: "Hint",
-  musicOn: "Mute music",
-  musicOff: "Play music",
-  fullscreenOn: "Exit full screen",
-  fullscreenOff: "Full screen",
-  quit: "Exit game",
-  success: "Well done! You found all the differences!",
-  complete: "Level {n} complete",
-  next: "Next level →",
-  instruction1: "Find 7 differences between the images.",
-  instruction2: "Found one? Tap it in either image.",
-  instruction3: "Find them all to move to the next level.",
-  fullscreenHint: "Use the icon to view the images in full screen",
-  start: "Let's begin",
-  rotate: "Rotate your phone to landscape",
-  paused: "Game paused",
-  unavailable: "The game is unavailable right now",
-};
+let language: Language | null = null;
 
-export type CopyKey = keyof typeof he;
-export function copy(session: BridgeSession | null, key: CopyKey, n?: number) {
-  const defaults = session?.locale === "en-US" ? en : he;
-  const value = session?.translations[key] || defaults[key];
-  return value.replace(/\{n\}/g, String(n ?? ""));
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+export async function loadLanguage(): Promise<Language> {
+  language = null;
+  // A relative URL is essential: this must work at each language's own prefix.
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+  let value: unknown;
+  try {
+    const response = await fetch("./translations.json", {
+      cache: "no-cache", signal: controller.signal,
+    });
+    if (!response.ok) throw new Error("translations_unavailable");
+    value = await response.json();
+  } finally {
+    clearTimeout(timeout);
+  }
+  const keys = isRecord(value) ? value.keys : null;
+  if (!isRecord(value) ||
+      (value.locale !== "he-IL" && value.locale !== "en-US") ||
+      (value.dir !== "rtl" && value.dir !== "ltr") ||
+      !isRecord(keys) ||
+      !copyKeys.every((key) => typeof keys[key] === "string" &&
+        (keys[key] as string).trim().length > 0)) {
+    throw new Error("translations_unavailable");
+  }
+  language = value as unknown as Language;
+  return language;
+}
+
+export function getLanguage(): Language {
+  if (!language) throw new Error("translations_unavailable");
+  return language;
+}
+
+export function copy(_session: unknown, key: CopyKey, n?: number): string {
+  return getLanguage().keys[key].replace(/\{n\}/g, String(n ?? ""));
 }

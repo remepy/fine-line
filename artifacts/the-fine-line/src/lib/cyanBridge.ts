@@ -4,12 +4,11 @@ export const PROTOCOL_VERSION = 1;
 export interface BridgeSession {
   protocolVersion: 1;
   sessionId: string;
-  locale: "he-IL" | "en-US";
-  translations: Record<string, string>;
   levelIds: string[];
   reducedMotion: boolean;
   tutorialSeen: boolean;
 }
+import { getLanguage } from "./copy.ts";
 
 export type BridgeState = {
   embedded: boolean;
@@ -40,7 +39,6 @@ let timer: ReturnType<typeof setTimeout> | undefined;
 let generation = 0;
 let acceptingSession = true;
 let completedRounds = 0;
-let sessionRequestController: AbortController | undefined;
 
 function update(next: Partial<BridgeState>) {
   state = { ...state, ...next };
@@ -56,7 +54,6 @@ function fail(code: string) {
   if (state.status === "ended") return;
   post("game_error", { code, message: code });
   clearTimeout(timer);
-  sessionRequestController?.abort();
   generation++;
   update({ status: "ended", paused: true, endReason: "error" });
 }
@@ -65,32 +62,22 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-async function parseSession(value: unknown, signal: AbortSignal): Promise<BridgeSession> {
+function parseSession(value: unknown): BridgeSession {
   if (!isRecord(value) || value.protocolVersion !== PROTOCOL_VERSION ||
       typeof value.sessionId !== "string" || !value.sessionId ||
       !Array.isArray(value.levelIds) || value.levelIds.length === 0 ||
       !value.levelIds.every((id) => typeof id === "string" && !!id) ||
       typeof value.reducedMotion !== "boolean" ||
-      typeof value.tutorialSeen !== "boolean") {
+      typeof value.tutorialSeen !== "boolean" ||
+      typeof value.expectedLocale !== "string") {
     throw new Error("invalid_session");
   }
-  let translations: unknown = value.translations;
-  if (typeof translations === "string") {
-    // A translation URL is supported, but the host must configure CORS for
-    // cross-origin resources. No untrusted text is inserted as HTML.
-    const response = await fetch(translations, { signal });
-    if (!response.ok) throw new Error("translations_unavailable");
-    translations = await response.json();
-  }
-  if (!isRecord(translations) ||
-      !Object.values(translations).every((v) => typeof v === "string")) {
-    throw new Error("invalid_translations");
+  if (value.expectedLocale !== getLanguage().locale) {
+    throw new Error("locale_mismatch");
   }
   return {
     protocolVersion: 1,
     sessionId: value.sessionId,
-    locale: value.locale === "en-US" ? "en-US" : "he-IL",
-    translations: translations as Record<string, string>,
     levelIds: value.levelIds as string[],
     reducedMotion: value.reducedMotion,
     tutorialSeen: value.tutorialSeen,
@@ -104,21 +91,14 @@ function receive(message: unknown) {
       if (state.status !== "waiting" || !acceptingSession) return;
       acceptingSession = false;
       clearTimeout(timer);
-      const request = ++generation;
-      sessionRequestController = new AbortController();
-      timer = setTimeout(() => {
-        if (generation === request && state.status === "waiting") fail("session_timeout");
-      }, 5000);
-      void parseSession(message.data, sessionRequestController.signal).then((session) => {
-        if (generation === request && state.status === "waiting") {
-          clearTimeout(timer);
-          sessionRequestController = undefined;
-          completedRounds = 0;
-          update({ status: "active", session });
-        }
-      }).catch(() => {
-        if (generation === request) fail("invalid_session");
-      });
+      try {
+        const session = parseSession(message.data);
+        completedRounds = 0;
+        update({ status: "active", session });
+      } catch (error) {
+        fail(error instanceof Error && error.message === "locale_mismatch"
+          ? "locale_mismatch" : "invalid_session");
+      }
       return;
     }
     case "pause":
@@ -129,7 +109,6 @@ function receive(message: unknown) {
       return;
     case "abort":
       clearTimeout(timer);
-      sessionRequestController?.abort();
       generation++;
       update({ status: "ended", paused: true, endReason: "aborted" });
       return;
@@ -143,7 +122,9 @@ export function startBridge() {
   timer = setTimeout(() => {
     if (state.status === "waiting" && acceptingSession) fail("session_timeout");
   }, 5000);
-  post("game_ready", { gameId: GAME_ID, protocolVersion: PROTOCOL_VERSION });
+  post("game_ready", {
+    gameId: GAME_ID, protocolVersion: PROTOCOL_VERSION, locale: getLanguage().locale,
+  });
 }
 
 export function getBridgeState() { return state; }

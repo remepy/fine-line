@@ -62,8 +62,6 @@ export default function GamePage() {
     if (level === session.levelIds.length) finishGame(level, imageSet.id, stats);
   }, [session, allFound, bridge.paused, bridge.status, imageSet, level, zones.length, hints, mistakes]);
   useEffect(() => {
-    document.documentElement.lang = session?.locale ?? "he-IL";
-    document.documentElement.dir = session?.locale === "en-US" ? "ltr" : "rtl";
     document.documentElement.classList.toggle("reduced-motion", !!session?.reducedMotion);
     return () => document.documentElement.classList.remove("reduced-motion");
   }, [session]);
@@ -72,10 +70,7 @@ export default function GamePage() {
   const hintButtonDisabled = loading || bridge.paused || hintsLeft <= 0;
 
   if (bridge.status === "waiting" || bridge.status === "ended") {
-    return <div className="bridge-standby" role="status">
-      {bridge.status === "waiting" ? copy(null, "loading") :
-        bridge.endReason === "error" ? copy(session, "unavailable") : null}
-    </div>;
+    return null;
   }
 
   return (
@@ -83,7 +78,7 @@ export default function GamePage() {
       <div className="outer-wrapper" />
 
       <div className="rotation-wrapper">
-        <div className="phone-frame" dir={session?.locale === "en-US" ? "ltr" : "rtl"}>
+        <div className="phone-frame">
           <main className="images-area">
             {loading || !imageSet ? (
               <div className="loading-state">

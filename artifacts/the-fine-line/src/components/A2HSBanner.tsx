@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { copy } from "../lib/copy";
 
 const DISMISSED_KEY = "a2hs-dismissed";
 
@@ -29,9 +30,9 @@ export function A2HSBanner() {
   if (!visible) return null;
 
   return (
-    <div className="a2hs-banner" role="status" dir="rtl">
+    <div className="a2hs-banner" role="status">
       <span className="a2hs-text">
-        להחוויה מלאה: לחץ על
+        {copy(null, "addToHomeBeforeShare")}{" "}
         {/* iOS share icon */}
         <svg
           className="a2hs-share-icon"
@@ -41,18 +42,18 @@ export function A2HSBanner() {
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          aria-label="שתף"
+          aria-label={copy(null, "share")}
         >
           <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
           <polyline points="16 6 12 2 8 6" />
           <line x1="12" y1="2" x2="12" y2="15" />
         </svg>
-        ואז "הוסף למסך הבית"
+        {" "}{copy(null, "addToHomeAfterShare")}
       </span>
       <button
         className="a2hs-dismiss"
         onClick={dismiss}
-        aria-label="סגור"
+        aria-label={copy(null, "dismiss")}
         type="button"
       >
         ✕

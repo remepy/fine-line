@@ -28,7 +28,6 @@ export function SuccessModal({ isOpen, level, onNext, onExit, session, reducedMo
       }}
     >
       <div
-        dir={session?.locale === "en-US" ? "ltr" : "rtl"}
         style={{
           backgroundColor: "white",
           borderRadius: "20px",

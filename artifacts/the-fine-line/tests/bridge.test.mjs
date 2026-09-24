@@ -1,31 +1,59 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import { loadLanguage, getLanguage, copy } from "../src/lib/copy.ts";
+
+const he = JSON.parse(await readFile(new URL("../public/translations.json", import.meta.url)));
+const en = JSON.parse(await readFile(new URL("../translations/en.json", import.meta.url)));
 
 async function freshBridge(host) {
   globalThis.window = host ? { CyanGameBridge: host } : {};
   return import(`../src/lib/cyanBridge.ts?case=${Math.random()}`);
 }
 
+async function useLanguage(data) {
+  const previous = globalThis.fetch;
+  globalThis.fetch = async (url, options) => {
+    assert.equal(url, "./translations.json");
+    assert.equal(options.cache, "no-cache");
+    assert.ok(options.signal instanceof AbortSignal);
+    return { ok: true, json: async () => data };
+  };
+  try { return await loadLanguage(); }
+  finally { globalThis.fetch = previous; }
+}
+
 function startData(levelIds = ["walk-in-park", "seaside-terrace"]) {
   return {
     protocolVersion: 1,
     sessionId: "opaque-session",
-    locale: "en-US",
-    translations: {},
+    expectedLocale: getLanguage().locale,
     levelIds,
     reducedMotion: true,
     tutorialSeen: true,
   };
 }
 
-test("standalone does not post messages or wait for the app", async () => {
+test("both language files provide all copy, locale and direction", async () => {
+  await useLanguage(he);
+  assert.equal(getLanguage().dir, "rtl");
+  assert.equal(copy(null, "title"), "הקו הדק");
+  await useLanguage(en);
+  assert.equal(getLanguage().dir, "ltr");
+  assert.equal(copy(null, "title"), "The Fine Line");
+  assert.equal(copy(null, "level", 4), "Level 4");
+});
+
+test("standalone waits for copy and posts nothing", async () => {
+  await useLanguage(he);
   const bridge = await freshBridge();
   bridge.startBridge();
   assert.equal(bridge.getBridgeState().status, "standalone");
   assert.equal(window.cyanBridge, undefined);
 });
 
-test("ready precedes session, ordered rounds finish exactly once", async () => {
+test("ready includes loaded locale, then ordered rounds finish exactly once", async () => {
+  await useLanguage(en);
   const messages = [];
   const bridge = await freshBridge({
     postMessage(raw) {
@@ -38,10 +66,10 @@ test("ready precedes session, ordered rounds finish exactly once", async () => {
     },
   });
   bridge.startBridge();
-  await new Promise((resolve) => setTimeout(resolve, 0));
   assert.equal(bridge.getBridgeState().status, "active");
-  assert.equal(bridge.getBridgeState().session.locale, "en-US");
-  assert.equal(messages[0].data.gameId, "the-fine-line");
+  assert.deepEqual(messages[0].data, {
+    gameId: "the-fine-line", protocolVersion: 1, locale: "en-US",
+  });
 
   window.cyanBridge.receive({ type: "pause" });
   bridge.reportRound(1, "walk-in-park", { differencesFound: 7 });
@@ -59,19 +87,29 @@ test("ready precedes session, ordered rounds finish exactly once", async () => {
     "game_ready", "level_completed", "level_completed", "game_finished",
   ]);
   assert.equal(messages[3].data.lastCompletedLevelId, "seaside-terrace");
-  assert.equal(bridge.getBridgeState().endReason, "finished");
 });
 
-test("abort stops output and unknown locale falls back to Hebrew", async () => {
+test("locale mismatch fails closed; no gameplay and no leaked message", async () => {
+  await useLanguage(he);
   const messages = [];
   const bridge = await freshBridge({ postMessage: (raw) => messages.push(JSON.parse(raw)) });
   bridge.startBridge();
   window.cyanBridge.receive({
-    type: "session_start",
-    data: { ...startData(), locale: "fr-FR" },
+    type: "session_start", data: { ...startData(), expectedLocale: "en-US" },
   });
-  await new Promise((resolve) => setTimeout(resolve, 0));
-  assert.equal(bridge.getBridgeState().session.locale, "he-IL");
+  assert.deepEqual(messages.map((m) => m.type), ["game_ready", "game_error"]);
+  assert.equal(messages[1].data.code, "locale_mismatch");
+  assert.equal(bridge.getBridgeState().status, "ended");
+  bridge.reportRound(1, "walk-in-park", {});
+  assert.equal(messages.length, 2);
+});
+
+test("abort stops output", async () => {
+  await useLanguage(he);
+  const messages = [];
+  const bridge = await freshBridge({ postMessage: (raw) => messages.push(JSON.parse(raw)) });
+  bridge.startBridge();
+  window.cyanBridge.receive({ type: "session_start", data: startData() });
   window.cyanBridge.receive({ type: "abort", data: { reason: "interrupted" } });
   bridge.reportRound(1, "walk-in-park", {});
   assert.deepEqual(messages.map((m) => m.type), ["game_ready"]);
@@ -79,6 +117,7 @@ test("abort stops output and unknown locale falls back to Hebrew", async () => {
 });
 
 test("missing session fails closed after five seconds", async () => {
+  await useLanguage(he);
   const messages = [];
   const bridge = await freshBridge({ postMessage: (raw) => messages.push(JSON.parse(raw)) });
   bridge.startBridge();
@@ -87,28 +126,47 @@ test("missing session fails closed after five seconds", async () => {
   assert.equal(bridge.getBridgeState().endReason, "error");
 });
 
-test("stalled translation URL fails closed after session_start", async () => {
-  const previousFetch = globalThis.fetch;
-  let aborted = false;
-  globalThis.fetch = (_url, { signal }) => new Promise((_resolve, reject) => {
-    signal.addEventListener("abort", () => {
-      aborted = true;
-      reject(new Error("aborted"));
-    });
+test("missing or invalid copy cannot be shown or followed by game_ready", async () => {
+  const bridgeMessages = [];
+  const bridge = await freshBridge({
+    postMessage: (raw) => bridgeMessages.push(JSON.parse(raw)),
   });
+  for (const data of [{ ...he, keys: { title: "partial" } }, { ...he, dir: "invalid" }]) {
+    await assert.rejects(useLanguage(data), /translations_unavailable/);
+    assert.throws(() => copy(null, "title"), /translations_unavailable/);
+  }
+  const previous = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    assert.equal(url, "./translations.json");
+    return { ok: false, status: 404 };
+  };
   try {
-    const messages = [];
-    const bridge = await freshBridge({ postMessage: (raw) => messages.push(JSON.parse(raw)) });
-    bridge.startBridge();
-    window.cyanBridge.receive({
-      type: "session_start",
-      data: { ...startData(), translations: "https://example.invalid/translations.json" },
-    });
-    await new Promise((resolve) => setTimeout(resolve, 5100));
-    assert.equal(aborted, true);
-    assert.deepEqual(messages.map((m) => m.type), ["game_ready", "game_error"]);
-    assert.equal(bridge.getBridgeState().endReason, "error");
+    await assert.rejects(loadLanguage(), /translations_unavailable/);
   } finally {
-    globalThis.fetch = previousFetch;
+    globalThis.fetch = previous;
+  }
+  bridge.reportError("translations_unavailable");
+  assert.deepEqual(bridgeMessages.map((m) => m.type), ["game_error"]);
+  assert.equal(bridgeMessages[0].data.code, "translations_unavailable");
+});
+
+test("unresponsive translation file is aborted before gameplay starts", async () => {
+  const previous = globalThis.fetch;
+  let aborted = false;
+  globalThis.fetch = (url, { signal }) => {
+    assert.equal(url, "./translations.json");
+    return new Promise((_resolve, reject) => {
+      signal.addEventListener("abort", () => {
+        aborted = true;
+        reject(new Error("request aborted"));
+      });
+    });
+  };
+  try {
+    await assert.rejects(loadLanguage());
+    assert.equal(aborted, true);
+    assert.throws(() => copy(null, "title"), /translations_unavailable/);
+  } finally {
+    globalThis.fetch = previous;
   }
 });

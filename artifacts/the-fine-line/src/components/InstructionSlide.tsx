@@ -9,7 +9,7 @@ interface Props {
 
 export function InstructionSlide({ onStart, onExit, showFullscreenHint, session }: Props) {
   return (
-    <div className="instr-overlay" dir={session?.locale === "en-US" ? "ltr" : "rtl"}>
+    <div className="instr-overlay">
       <div className="instr-card">
         <ul className="instr-body">
           <li>{copy(session, "instruction1")}</li>

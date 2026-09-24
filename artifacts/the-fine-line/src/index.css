@@ -144,7 +144,6 @@ html, body, #root {
   font-weight: 600;
   color: var(--text-primary);
   letter-spacing: 0.01em;
-  direction: rtl;
   margin: 0;
 }
 
@@ -487,7 +486,6 @@ html, body, #root {
   display: flex;
   align-items: center;
   gap: 6px;
-  direction: rtl;
 }
 
 .tap-icon {
@@ -532,7 +530,6 @@ html, body, #root {
   display: flex;
   align-items: center;
   gap: 5px;
-  direction: rtl;
 }
 
 .a2hs-share-icon {
@@ -696,7 +693,6 @@ html, body, #root {
   max-width: 600px;
   width: 90%;
   text-align: center;
-  direction: rtl;
 }
 
 .instr-body {
@@ -708,7 +704,7 @@ html, body, #root {
   font-weight: 400;
   color: var(--text-primary);
   line-height: 1.5;
-  text-align: right;
+  text-align: start;
 }
 
 .instr-fs-hint {
@@ -821,6 +817,3 @@ html, body, #root {
     transition-duration: 0.001ms !important;
   }
 }
-
-html[dir="ltr"] .instr-card { direction: ltr; }
-html[dir="ltr"] .instr-body { text-align: left; }
