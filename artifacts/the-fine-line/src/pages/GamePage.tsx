@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { useGame } from "../hooks/useGame";
 import { useIsRotated } from "../hooks/useIsRotated";
 import { useBackgroundMusic } from "../hooks/useBackgroundMusic";
-import { useFullscreen } from "../hooks/useFullscreen";
 import { GameImage } from "../components/GameImage";
 import { SparklesLayer } from "../components/Sparkle";
 import { SuccessModal } from "../components/SuccessModal";
@@ -38,12 +37,6 @@ export default function GamePage() {
 
   const isRotated = useIsRotated();
   const { isPlaying: musicPlaying, toggle: toggleMusic } = useBackgroundMusic(active && !bridge.paused);
-  const {
-    isFullscreen,
-    toggle: toggleFullscreen,
-    isSupported: fullscreenSupported,
-  } = useFullscreen();
-  const [hasUsedFullscreen, setHasUsedFullscreen] = useState(false);
   const [tutorialStored] = useState(() => {
     try { return localStorage.getItem("the-fine-line-tutorial-seen") !== "1"; }
     catch { return true; }
@@ -116,11 +109,10 @@ export default function GamePage() {
 
           {/* ─── Floating overlays ─── */}
 
-          {/* Top-right (RTL leading): title + level */}
+          {/* Top-right (RTL leading): game title */}
           <div className="overlay overlay-title">
             <div className="title-pill">
               <span className="game-title">{copy(session, "title")}</span>
-              <span className="level-badge">{copy(session, "level", level)}</span>
             </div>
           </div>
 
@@ -178,57 +170,13 @@ export default function GamePage() {
                   <span className="music-slash" aria-hidden="true" />
                 )}
               </button>
-              {fullscreenSupported && (
-                <button
-                  type="button"
-                  className={`fs-toggle ${isFullscreen ? "is-on" : "is-off"}${!hasUsedFullscreen ? " fs-pulse-active" : ""}`}
-                  onClick={() => { setHasUsedFullscreen(true); toggleFullscreen(); }}
-                  title={copy(session, isFullscreen ? "fullscreenOn" : "fullscreenOff")}
-                  aria-label={copy(session, isFullscreen ? "fullscreenOn" : "fullscreenOff")}
-                  aria-pressed={isFullscreen}
-                >
-                  {isFullscreen ? (
-                    /* Minimize: arrows pointing inward */
-                    <svg
-                      className="fs-icon"
-                      viewBox="0 0 24 24"
-                      width="27"
-                      height="27"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden="true"
-                    >
-                      <path d="M9 3v6H3M15 3v6h6M9 21v-6H3M15 21v-6h6" />
-                    </svg>
-                  ) : (
-                    /* Maximize: arrows pointing outward */
-                    <svg
-                      className="fs-icon"
-                      viewBox="0 0 24 24"
-                      width="27"
-                      height="27"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden="true"
-                    >
-                      <path d="M3 9V3h6M21 9V3h-6M3 15v6h6M21 15v6h-6" />
-                    </svg>
-                  )}
-                </button>
-              )}
           </div>
           {bridge.embedded && <button className="bridge-quit" type="button" onClick={requestExit}
             aria-label={copy(session, "quit")} title={copy(session, "quit")}>
             {copy(session, "quit")}
           </button>}
 
-          {/* Bottom-right (RTL leading): subtitle */}
+          {/* Bottom center: spans the divider and both images */}
           {!loading && diffCount > 0 && (
             <div className="overlay-subtitle">
               {copy(session, "differences", diffCount)}
@@ -286,7 +234,7 @@ export default function GamePage() {
         <InstructionSlide onStart={() => {
           setTutorialDismissed(true);
           try { localStorage.setItem("the-fine-line-tutorial-seen", "1"); } catch { /* storage may be disabled */ }
-        }} onExit={requestExit} showFullscreenHint={fullscreenSupported && !bridge.embedded} session={session} />
+        }} onExit={requestExit} session={session} />
       )}
       {bridge.paused && <div className="bridge-pause" role="status">
         <span>{copy(session, "paused")}</span>

@@ -41,7 +41,7 @@ test("both language files provide all copy, locale and direction", async () => {
   await useLanguage(en);
   assert.equal(getLanguage().dir, "ltr");
   assert.equal(copy(null, "title"), "The Fine Line");
-  assert.equal(copy(null, "level", 4), "Level 4");
+  assert.equal(copy(null, "differences", 4), "Find 4 differences");
 });
 
 test("standalone waits for copy and posts nothing", async () => {

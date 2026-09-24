@@ -1,10 +1,10 @@
 // Translation data is loaded from the page's own translations.json before
 // React mounts or game_ready is sent. There are deliberately no copy fallbacks.
 export const copyKeys = [
-  "title", "level", "loading", "original", "modified", "differences",
-  "hint", "musicOn", "musicOff", "fullscreenOn", "fullscreenOff", "quit",
+  "title", "loading", "original", "modified", "differences",
+  "hint", "musicOn", "musicOff", "quit",
   "success", "complete", "next", "instruction1", "instruction2",
-  "instruction3", "fullscreenHint", "start", "rotate", "paused",
+  "instruction3", "start", "rotate", "paused",
   "unavailable", "addToHomeBeforeShare", "addToHomeAfterShare",
   "share", "dismiss", "appDescription",
 ] as const;
