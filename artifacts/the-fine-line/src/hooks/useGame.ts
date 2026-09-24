@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { parseHitmap, HitmapData, checkHit } from "../lib/hitmap";
+import type { BridgeSession } from "../lib/cyanBridge";
+import { reportError } from "../lib/cyanBridge";
 
 export interface ImageSet {
   id: string;
@@ -29,7 +31,7 @@ function buildUrl(path: string) {
   return `${BASE}${path}`;
 }
 
-export function useGame() {
+export function useGame(session: BridgeSession | null, active: boolean, paused: boolean) {
   const [allSets, setAllSets] = useState<ImageSet[]>([]);
   const [level, setLevel] = useState(1);
   const [imageSet, setImageSet] = useState<ImageSet | null>(null);
@@ -38,44 +40,59 @@ export function useGame() {
   const [sparks, setSparks] = useState<SparkleEffect[]>([]);
   const [loading, setLoading] = useState(true);
   const sparkIdRef = useRef(0);
+  const [mistakes, setMistakes] = useState(0);
+  const [hints, setHints] = useState(0);
+  const loadToken = useRef(0);
 
   useEffect(() => {
     fetch(buildUrl("image-sets/manifest.json"))
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error("catalogue_unavailable");
+        return r.json();
+      })
       .then((data: ImageSet[]) => setAllSets(data))
-      .catch(console.error);
+      .catch(() => reportError("catalogue_unavailable"));
   }, []);
 
   const loadLevel = useCallback(
-    async (sets: ImageSet[], lvl: number) => {
+    async (sets: ImageSet[], lvl: number, selectedId?: string) => {
       if (sets.length === 0) return;
+      const token = ++loadToken.current;
       setLoading(true);
       setHitmapData(null);
       setRevealedMarkers([]);
       setSparks([]);
+      setMistakes(0);
+      setHints(0);
 
-      const idx = (lvl - 1) % sets.length;
-      const set = sets[idx];
+      const set = selectedId
+        ? sets.find((entry) => entry.id === selectedId)
+        : sets[(lvl - 1) % sets.length];
+      if (!set) { reportError("unknown_level"); return; }
       setImageSet(set);
       setLevel(lvl);
 
       try {
         const parsed = await parseHitmap(buildUrl(set.hitmap));
+        if (token !== loadToken.current) return;
+        if (parsed.zones.length === 0) throw new Error("empty_hitmap");
         setHitmapData(parsed);
-      } catch (e) {
-        console.error("hitmap parse error", e);
+      } catch {
+        if (token !== loadToken.current) return;
+        reportError("level_unavailable");
       }
 
-      setLoading(false);
+      if (token === loadToken.current) setLoading(false);
     },
     []
   );
 
   useEffect(() => {
-    if (allSets.length > 0) {
-      loadLevel(allSets, 1);
+    if (allSets.length > 0 && active) {
+      loadLevel(allSets, 1, session?.levelIds[0]);
     }
-  }, [allSets, loadLevel]);
+    return () => { loadToken.current++; };
+  }, [allSets, loadLevel, active, session]);
 
   const addSpark = useCallback((x: number, y: number, success: boolean) => {
     const id = ++sparkIdRef.current;
@@ -94,7 +111,7 @@ export function useGame() {
       viewportX: number,
       viewportY: number
     ) => {
-      if (loading || !hitmapData) return;
+      if (loading || paused || !active || !hitmapData) return;
       const foundIds = new Set(revealedMarkers.map((m) => m.id));
       const hit = checkHit(relX, relY, naturalW, naturalH, hitmapData, foundIds);
 
@@ -105,17 +122,19 @@ export function useGame() {
           { id: hit, tapX: relX, tapY: relY, type: "found" },
         ]);
       } else {
+        setMistakes((count) => count + 1);
         addSpark(viewportX, viewportY, false);
       }
     },
-    [loading, hitmapData, revealedMarkers, addSpark]
+    [loading, paused, active, hitmapData, revealedMarkers, addSpark]
   );
 
   const handleHint = useCallback(() => {
-    if (loading || !hitmapData) return;
+    if (loading || paused || !active || !hitmapData) return;
     const foundIds = new Set(revealedMarkers.map((m) => m.id));
     const unrevealedZone = hitmapData.zones.find((z) => !foundIds.has(z.id));
     if (unrevealedZone) {
+      setHints((count) => count + 1);
       setRevealedMarkers((prev) => [
         ...prev,
         {
@@ -126,11 +145,14 @@ export function useGame() {
         },
       ]);
     }
-  }, [loading, hitmapData, revealedMarkers]);
+  }, [loading, paused, active, hitmapData, revealedMarkers]);
 
   const nextLevel = useCallback(() => {
-    loadLevel(allSets, level + 1);
-  }, [allSets, level, loadLevel]);
+    if (!active || paused) return;
+    const next = level + 1;
+    if (session && next > session.levelIds.length) return;
+    loadLevel(allSets, next, session?.levelIds[next - 1]);
+  }, [allSets, level, loadLevel, session, active, paused]);
 
   const zones = hitmapData?.zones ?? [];
   const allFound = zones.length > 0 && revealedMarkers.length >= zones.length;
@@ -142,9 +164,10 @@ export function useGame() {
       setShowSuccess(false);
       return;
     }
+    if (paused) return;
     const t = setTimeout(() => setShowSuccess(true), 2000);
     return () => clearTimeout(t);
-  }, [allFound]);
+  }, [allFound, paused]);
 
   const hintsLeft = zones.length - revealedMarkers.length;
 
@@ -159,6 +182,8 @@ export function useGame() {
     showSuccess,
     hintsLeft,
     totalSets: allSets.length,
+    mistakes,
+    hints,
     handleTap,
     handleHint,
     nextLevel,

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useGame } from "../hooks/useGame";
 import { useIsRotated } from "../hooks/useIsRotated";
 import { useBackgroundMusic } from "../hooks/useBackgroundMusic";
@@ -9,10 +9,16 @@ import { SuccessModal } from "../components/SuccessModal";
 import { PortraitOverlay } from "../components/PortraitOverlay";
 import { A2HSBanner } from "../components/A2HSBanner";
 import { InstructionSlide } from "../components/InstructionSlide";
+import { reportRound, finishGame, requestExit, reportError } from "../lib/cyanBridge";
+import { useBridgeState } from "../hooks/useBridgeState";
+import { copy } from "../lib/copy";
 
 const BASE = import.meta.env.BASE_URL;
 
 export default function GamePage() {
+  const bridge = useBridgeState();
+  const { session } = bridge;
+  const active = bridge.status === "active" || bridge.status === "standalone";
   const {
     level,
     imageSet,
@@ -22,45 +28,78 @@ export default function GamePage() {
     loading,
     showSuccess,
     hintsLeft,
+    allFound,
+    mistakes,
+    hints,
     handleTap,
     handleHint,
     nextLevel,
-  } = useGame();
+  } = useGame(session, active, bridge.paused);
 
   const isRotated = useIsRotated();
-  const { isPlaying: musicPlaying, toggle: toggleMusic } = useBackgroundMusic();
+  const { isPlaying: musicPlaying, toggle: toggleMusic } = useBackgroundMusic(active && !bridge.paused);
   const {
     isFullscreen,
     toggle: toggleFullscreen,
     isSupported: fullscreenSupported,
   } = useFullscreen();
   const [hasUsedFullscreen, setHasUsedFullscreen] = useState(false);
-  const [showInstructions, setShowInstructions] = useState(true);
+  const [tutorialStored] = useState(() => {
+    try { return localStorage.getItem("the-fine-line-tutorial-seen") !== "1"; }
+    catch { return true; }
+  });
+  const [tutorialDismissed, setTutorialDismissed] = useState(false);
+  const showInstructions = session
+    ? !session.tutorialSeen && !tutorialDismissed
+    : tutorialStored && !tutorialDismissed;
+  const reportedLevel = useRef<number | null>(null);
+  useEffect(() => {
+    if (!session || !allFound || bridge.paused || bridge.status !== "active" ||
+        reportedLevel.current === level || !imageSet) return;
+    reportedLevel.current = level;
+    const stats = { differencesFound: zones.length, hintsUsed: hints, misses: mistakes };
+    reportRound(level, imageSet.id, stats);
+    if (level === session.levelIds.length) finishGame(level, imageSet.id, stats);
+  }, [session, allFound, bridge.paused, bridge.status, imageSet, level, zones.length, hints, mistakes]);
+  useEffect(() => {
+    document.documentElement.lang = session?.locale ?? "he-IL";
+    document.documentElement.dir = session?.locale === "en-US" ? "ltr" : "rtl";
+    document.documentElement.classList.toggle("reduced-motion", !!session?.reducedMotion);
+    return () => document.documentElement.classList.remove("reduced-motion");
+  }, [session]);
   const diffCount = zones.length;
   const revealedCount = revealedMarkers.length;
-  const hintButtonDisabled = loading || hintsLeft <= 0;
+  const hintButtonDisabled = loading || bridge.paused || hintsLeft <= 0;
+
+  if (bridge.status === "waiting" || bridge.status === "ended") {
+    return <div className="bridge-standby" role="status">
+      {bridge.status === "waiting" ? copy(null, "loading") :
+        bridge.endReason === "error" ? copy(session, "unavailable") : null}
+    </div>;
+  }
 
   return (
     <>
       <div className="outer-wrapper" />
 
       <div className="rotation-wrapper">
-        <div className="phone-frame" dir="rtl">
+        <div className="phone-frame" dir={session?.locale === "en-US" ? "ltr" : "rtl"}>
           <main className="images-area">
             {loading || !imageSet ? (
               <div className="loading-state">
                 <div className="spinner" />
-                <p>טוען תמונות...</p>
+                <p>{copy(session, "loading")}</p>
               </div>
             ) : (
               <>
                 <div className="image-half">
                   <GameImage
                     src={`${BASE}${imageSet.original}`}
-                    alt="תמונה מקורית"
+                    alt={copy(session, "original")}
                     zones={zones}
                     revealedMarkers={revealedMarkers}
                     isRotated={isRotated}
+                    onLoadError={() => reportError("level_unavailable")}
                     onTap={handleTap}
                   />
                 </div>
@@ -68,10 +107,11 @@ export default function GamePage() {
                 <div className="image-half">
                   <GameImage
                     src={`${BASE}${imageSet.modified}`}
-                    alt="תמונה שונה"
+                    alt={copy(session, "modified")}
                     zones={zones}
                     revealedMarkers={revealedMarkers}
                     isRotated={isRotated}
+                    onLoadError={() => reportError("level_unavailable")}
                     onTap={handleTap}
                   />
                 </div>
@@ -84,8 +124,8 @@ export default function GamePage() {
           {/* Top-right (RTL leading): title + level */}
           <div className="overlay overlay-title">
             <div className="title-pill">
-              <span className="game-title">הקו הדק</span>
-              <span className="level-badge">שלב {level}</span>
+              <span className="game-title">{copy(session, "title")}</span>
+              <span className="level-badge">{copy(session, "level", level)}</span>
             </div>
           </div>
 
@@ -125,8 +165,8 @@ export default function GamePage() {
                 type="button"
                 className={`music-toggle ${musicPlaying ? "is-on" : "is-off"}`}
                 onClick={toggleMusic}
-                title={musicPlaying ? "השתק מוזיקה" : "הפעל מוזיקה"}
-                aria-label={musicPlaying ? "השתק מוזיקה" : "הפעל מוזיקה"}
+                title={copy(session, musicPlaying ? "musicOn" : "musicOff")}
+                aria-label={copy(session, musicPlaying ? "musicOn" : "musicOff")}
                 aria-pressed={musicPlaying}
               >
                 <svg
@@ -148,8 +188,8 @@ export default function GamePage() {
                   type="button"
                   className={`fs-toggle ${isFullscreen ? "is-on" : "is-off"}${!hasUsedFullscreen ? " fs-pulse-active" : ""}`}
                   onClick={() => { setHasUsedFullscreen(true); toggleFullscreen(); }}
-                  title={isFullscreen ? "צא ממסך מלא" : "מסך מלא"}
-                  aria-label={isFullscreen ? "צא ממסך מלא" : "מסך מלא"}
+                  title={copy(session, isFullscreen ? "fullscreenOn" : "fullscreenOff")}
+                  aria-label={copy(session, isFullscreen ? "fullscreenOn" : "fullscreenOff")}
                   aria-pressed={isFullscreen}
                 >
                   {isFullscreen ? (
@@ -188,11 +228,15 @@ export default function GamePage() {
                 </button>
               )}
           </div>
+          {bridge.embedded && <button className="bridge-quit" type="button" onClick={requestExit}
+            aria-label={copy(session, "quit")} title={copy(session, "quit")}>
+            {copy(session, "quit")}
+          </button>}
 
           {/* Bottom-right (RTL leading): subtitle */}
           {!loading && diffCount > 0 && (
             <div className="overlay-subtitle">
-              זהו {diffCount} הבדלים
+              {copy(session, "differences", diffCount)}
               <svg
                 className="tap-icon"
                 viewBox="0 0 24 24"
@@ -216,8 +260,8 @@ export default function GamePage() {
             className="hint-fab"
             onClick={handleHint}
             disabled={hintButtonDisabled}
-            title="רמז"
-            aria-label="רמז"
+            title={copy(session, "hint")}
+            aria-label={copy(session, "hint")}
           >
             <span className="hint-icon">💡</span>
             {hintsLeft > 0 && <span className="hint-count">{hintsLeft}</span>}
@@ -235,14 +279,24 @@ export default function GamePage() {
         isOpen={showSuccess}
         level={level}
         onNext={nextLevel}
+        onExit={requestExit}
+        session={session}
+        reducedMotion={!!session?.reducedMotion}
       />
 
-      <PortraitOverlay visible={isRotated} />
-      <A2HSBanner />
+      <PortraitOverlay visible={isRotated} session={session} />
+      {!bridge.embedded && <A2HSBanner />}
 
       {showInstructions && !loading && !isRotated && (
-        <InstructionSlide onStart={() => setShowInstructions(false)} showFullscreenHint={fullscreenSupported} />
+        <InstructionSlide onStart={() => {
+          setTutorialDismissed(true);
+          try { localStorage.setItem("the-fine-line-tutorial-seen", "1"); } catch { /* storage may be disabled */ }
+        }} onExit={requestExit} showFullscreenHint={fullscreenSupported && !bridge.embedded} session={session} />
       )}
+      {bridge.paused && <div className="bridge-pause" role="status">
+        <span>{copy(session, "paused")}</span>
+        <button type="button" onClick={requestExit}>{copy(session, "quit")}</button>
+      </div>}
     </>
   );
 }

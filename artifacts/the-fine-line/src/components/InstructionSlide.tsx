@@ -1,20 +1,24 @@
+import type { BridgeSession } from "../lib/cyanBridge";
+import { copy } from "../lib/copy";
 interface Props {
   onStart: () => void;
+  onExit: () => void;
   showFullscreenHint: boolean;
+  session: BridgeSession | null;
 }
 
-export function InstructionSlide({ onStart, showFullscreenHint }: Props) {
+export function InstructionSlide({ onStart, onExit, showFullscreenHint, session }: Props) {
   return (
-    <div className="instr-overlay" dir="rtl">
+    <div className="instr-overlay" dir={session?.locale === "en-US" ? "ltr" : "rtl"}>
       <div className="instr-card">
         <ul className="instr-body">
-          <li>זהו 7 הבדלים בין התמונות שעל המסך.</li>
-          <li>מצאתם הבדל? הקישו עליו באחת התמונות.</li>
-          <li>מצאו את כל ההבדלים כדי לעבור לשלב הבא.</li>
+          <li>{copy(session, "instruction1")}</li>
+          <li>{copy(session, "instruction2")}</li>
+          <li>{copy(session, "instruction3")}</li>
         </ul>
 
         {showFullscreenHint && <p className="instr-fs-hint">
-          לחצו על
+          {copy(session, "fullscreenHint")}
           <span className="instr-fs-icon" aria-hidden="true">
             <svg
               viewBox="0 0 24 24"
@@ -29,12 +33,14 @@ export function InstructionSlide({ onStart, showFullscreenHint }: Props) {
               <path d="M3 9V3h6M21 9V3h-6M3 15v6h6M21 15v6h-6" />
             </svg>
           </span>
-          להצגת התמונות במסך מלא
         </p>}
 
         <button className="instr-start-btn" onClick={onStart}>
-          בואו נתחיל
+          {copy(session, "start")}
         </button>
+        {session && <button type="button" className="instr-exit-btn" onClick={onExit}>
+          {copy(session, "quit")}
+        </button>}
       </div>
     </div>
   );

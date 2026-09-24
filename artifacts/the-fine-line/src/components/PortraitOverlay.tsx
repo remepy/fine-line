@@ -1,8 +1,11 @@
+import type { BridgeSession } from "../lib/cyanBridge";
+import { copy } from "../lib/copy";
+import { requestExit } from "../lib/cyanBridge";
 /**
  * Full-screen overlay shown on mobile devices in portrait orientation.
  * Asks the player to rotate to landscape before playing.
  */
-export function PortraitOverlay({ visible }: { visible: boolean }) {
+export function PortraitOverlay({ visible, session }: { visible: boolean; session: BridgeSession | null }) {
   if (!visible) return null;
 
   return (
@@ -26,7 +29,10 @@ export function PortraitOverlay({ visible }: { visible: boolean }) {
           <path d="M14.0491 69.678C12.1545 70.1212 10.1633 69.8587 8.44826 68.9396C6.73323 68.0206 5.41193 66.508 4.73171 64.685C4.05149 62.862 4.05898 60.8536 4.75277 59.0358M0.999921 62.3773L4.38477 58.6973L8.06482 62.0821" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
 
-        <p className="portrait-overlay__text">סובבו את הטלפון למצב מאוזן</p>
+        <p className="portrait-overlay__text">{copy(session, "rotate")}</p>
+        {session && <button type="button" className="instr-exit-btn" onClick={requestExit}>
+          {copy(session, "quit")}
+        </button>}
       </div>
     </div>
   );

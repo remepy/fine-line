@@ -101,6 +101,7 @@ interface GameImageProps {
   zones: Zone[];
   revealedMarkers: RevealedMarker[];
   isRotated: boolean;
+  onLoadError?: () => void;
   onTap: (
     relX: number,
     relY: number,
@@ -117,6 +118,7 @@ export function GameImage({
   zones,
   revealedMarkers,
   isRotated,
+  onLoadError,
   onTap,
 }: GameImageProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -170,6 +172,7 @@ export function GameImage({
         src={src}
         alt={alt}
         draggable={false}
+        onError={onLoadError}
         style={{
           width: "100%",
           height: "100%",

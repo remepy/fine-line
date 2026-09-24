@@ -5,7 +5,7 @@ import track2 from "@assets/Terrasse_Bleue_1777619333976.mp3";
 const PLAYLIST = [track1, track2];
 const VOLUME = 0.35;
 
-export function useBackgroundMusic() {
+export function useBackgroundMusic(enabled = true) {
   // Default desired state is ON; actual playback may be deferred until the
   // first user interaction because of browser autoplay policies.
   const [isPlaying, setIsPlaying] = useState(true);
@@ -19,6 +19,7 @@ export function useBackgroundMusic() {
   }, [isPlaying]);
 
   useEffect(() => {
+    if (!enabled) return;
     const audio = new Audio(PLAYLIST[0]);
     audio.volume = VOLUME;
     audio.preload = "auto";
@@ -40,7 +41,7 @@ export function useBackgroundMusic() {
     // because there has been no user gesture yet — that's fine, we'll
     // start on the first interaction below.
     const tryPlay = () => {
-      if (!isPlayingRef.current || !audioRef.current) return Promise.resolve();
+      if (!enabled || !isPlayingRef.current || !audioRef.current) return Promise.resolve();
       return audioRef.current
         .play()
         .then(() => {
@@ -81,11 +82,15 @@ export function useBackgroundMusic() {
       audio.src = "";
       audioRef.current = null;
     };
-  }, []);
+  }, [enabled]);
+
+  useEffect(() => {
+    if (!enabled) audioRef.current?.pause();
+  }, [enabled]);
 
   const toggle = useCallback(() => {
     const audio = audioRef.current;
-    if (!audio) return;
+    if (!audio || !enabled) return;
 
     if (isPlayingRef.current) {
       audio.pause();
@@ -99,7 +104,7 @@ export function useBackgroundMusic() {
         })
         .catch(() => setIsPlaying(false));
     }
-  }, []);
+  }, [enabled]);
 
   return { isPlaying, toggle };
 }

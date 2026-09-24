@@ -1,17 +1,18 @@
 import celebrationImage from "@assets/Artist's_Brush_1777619872196.png";
+import type { BridgeSession } from "../lib/cyanBridge";
+import { copy } from "../lib/copy";
 
 interface SuccessModalProps {
   isOpen: boolean;
   level: number;
   onNext: () => void;
+  onExit: () => void;
+  session: BridgeSession | null;
+  reducedMotion: boolean;
 }
 
-export function SuccessModal({ isOpen, level, onNext }: SuccessModalProps) {
+export function SuccessModal({ isOpen, level, onNext, onExit, session, reducedMotion }: SuccessModalProps) {
   if (!isOpen) return null;
-
-  function handleExit() {
-    window.close();
-  }
 
   return (
     <div
@@ -23,11 +24,11 @@ export function SuccessModal({ isOpen, level, onNext }: SuccessModalProps) {
         justifyContent: "center",
         backgroundColor: "rgba(0,0,0,0.65)",
         zIndex: 10000,
-        animation: "fadeIn 0.3s ease-out",
+        animation: reducedMotion ? "none" : "fadeIn 0.3s ease-out",
       }}
     >
       <div
-        dir="rtl"
+        dir={session?.locale === "en-US" ? "ltr" : "rtl"}
         style={{
           backgroundColor: "white",
           borderRadius: "20px",
@@ -36,7 +37,7 @@ export function SuccessModal({ isOpen, level, onNext }: SuccessModalProps) {
           maxWidth: "320px",
           width: "90%",
           boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
-          animation: "modalPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+          animation: reducedMotion ? "none" : "modalPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
         }}
       >
         <img
@@ -61,7 +62,7 @@ export function SuccessModal({ isOpen, level, onNext }: SuccessModalProps) {
             lineHeight: "1.4",
           }}
         >
-          יפה מאוד, זיהית את כל ההבדלים!
+          {copy(session, "success")}
         </h2>
         <p
           style={{
@@ -70,7 +71,7 @@ export function SuccessModal({ isOpen, level, onNext }: SuccessModalProps) {
             marginBottom: "28px",
           }}
         >
-          שלב {level} הושלם
+          {copy(session, "complete", level)}
         </p>
 
         <button
@@ -98,11 +99,11 @@ export function SuccessModal({ isOpen, level, onNext }: SuccessModalProps) {
             (e.currentTarget as HTMLButtonElement).style.transform = "scale(1)";
           }}
         >
-          לשלב הבא ←
+          {copy(session, "next")}
         </button>
 
         <button
-          onClick={handleExit}
+          onClick={onExit}
           style={{
             background: "none",
             border: "none",
@@ -113,7 +114,7 @@ export function SuccessModal({ isOpen, level, onNext }: SuccessModalProps) {
             textDecoration: "underline",
           }}
         >
-          יציאה מהמשחק
+          {copy(session, "quit")}
         </button>
       </div>
     </div>
