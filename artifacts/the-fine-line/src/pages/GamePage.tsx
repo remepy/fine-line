@@ -175,9 +175,11 @@ export default function GamePage() {
                 type="button"
                 className="help-button"
                 onClick={() => setHelpOpen(true)}
+                aria-label={copy(session, "help")}
                 aria-haspopup="dialog"
+                title={copy(session, "help")}
               >
-                {copy(session, "help")}
+                <span aria-hidden="true">?</span>
               </button>
           </div>
           {bridge.embedded && <button className="bridge-quit" type="button" onClick={requestExit}
