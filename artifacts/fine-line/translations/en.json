@@ -1,0 +1,25 @@
+{
+  "locale": "en-US",
+  "dir": "ltr",
+  "keys": {
+    "title": "The Fine Line",
+    "loading": "Loading images...",
+    "original": "Original image",
+    "modified": "Changed image",
+    "differences": "Find {n} differences",
+    "hint": "Hint",
+    "help": "Help",
+    "musicOn": "Mute music",
+    "musicOff": "Play music",
+    "quit": "Exit game",
+    "success": "Well done! You found all the differences!",
+    "complete": "Level {n} complete",
+    "next": "Next level →",
+    "instruction1": "Find 7 differences between the images.",
+    "instruction2": "Found one? Tap it in either image.",
+    "instruction3": "Find them all to move to the next level.",
+    "start": "Let's begin",
+    "rotate": "Rotate your phone to landscape",
+    "paused": "Game paused"
+  }
+}
