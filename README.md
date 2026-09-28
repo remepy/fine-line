@@ -58,9 +58,27 @@ path baked in and its own `translations.json`. Upload the contents of each to
 - No identifier, key, path, asset name or log line may carry arm-identifying
   vocabulary. This is a blinded trial; the word for this arm is "Cyan".
 
-## Testing a session without the app
+## QA: running a build locally
 
-`tests/bridge.test.mjs` drives the bridge directly. To exercise a real build,
-serve `dist/languages/` at the matching path and inject a
-`CyanGameBridge.postMessage` stub that replies to `game_ready` with a
-`session_start` — `game_ready` arrives only after copy has loaded.
+```
+pnpm --filter @workspace/fine-line build:languages
+pnpm --filter @workspace/fine-line serve
+```
+
+`scripts/serve.mjs` serves the built bundles at the same paths S3 does, with
+the same cache headers, and does no clean-URL rewriting — a redirect from
+`/he/index.html` to `/he/` would break the relative `./translations.json`
+fetch.
+
+- `…/he/index.html` — standalone, exactly what QA sees opening a build URL.
+- `…/he/index.html?bridge=1` — with a stand-in for the Flutter host: it
+  answers `game_ready` with a `session_start` and prints every message the
+  game posts, in a panel bottom-left and in the console.
+
+Useful parameters on the `?bridge=1` URL: `rounds=N`, `levels=a,b,c`,
+`tutorial=0`, `locale=en-US` (to check BR-14 from the Hebrew build),
+`delay=6000` (to check the five-second timeout), `reducedMotion=1`. From the
+console, `__host.send("pause")`, `"resume"` and `__host.send("abort", {reason:
+"call"})` drive the rest of the app-side channel.
+
+`tests/bridge.test.mjs` covers the same ground headlessly.
