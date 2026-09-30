@@ -25,7 +25,7 @@ if (rawPort && (Number.isNaN(port) || port <= 0)) {
 // BASE_PATH controls the asset URL prefix in the built HTML. The dev workflow
 // always sets it; for production builds we fall back to "/" since this app is
 // served at the domain root.
-const basePath = process.env.BASE_PATH ?? "/";
+const basePath = "./"
 
 export default defineConfig({
   base: basePath,
