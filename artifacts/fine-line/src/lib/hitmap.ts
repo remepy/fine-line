@@ -109,7 +109,14 @@ function parseOnMainThread(hitmapUrl: string): Promise<HitmapData> {
   });
 }
 
-export async function parseHitmap(hitmapUrl: string): Promise<HitmapData> {
+export async function parseHitmap(rawUrl: string): Promise<HitmapData> {
+  // Resolve against the page before handing the URL to the worker. A relative
+  // URL inside a worker resolves against the *worker script's* location, not
+  // the document's — so with a relative base path the worker would look for
+  // the hitmap under assets/ and get a 404, while the same string loads the
+  // artwork correctly on the page. The level then renders with no zones and
+  // every tap is silently a no-op.
+  const hitmapUrl = new URL(rawUrl, window.location.href).href;
   const worker = getWorker();
   if (worker) {
     try {
