@@ -10,6 +10,8 @@ import { InstructionSlide } from "../components/InstructionSlide";
 import { reportRound, finishGame, requestExit, reportError } from "../lib/cyanBridge";
 import { useBridgeState } from "../hooks/useBridgeState";
 import { copy } from "../lib/copy";
+import { IoBulb, IoHelp, IoMusicalNotes } from "react-icons/io5";
+import { FiX } from "react-icons/fi";
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -61,7 +63,6 @@ export default function GamePage() {
     return () => document.documentElement.classList.remove("reduced-motion");
   }, [session]);
   const diffCount = zones.length;
-  const revealedCount = revealedMarkers.length;
   const hintButtonDisabled = loading || bridge.paused || hintsLeft <= 0;
 
   if (bridge.status === "waiting" || bridge.status === "ended") {
@@ -109,69 +110,13 @@ export default function GamePage() {
             )}
           </main>
 
-          {/* ─── Floating overlays ─── */}
+          {/* ─── Top bar ───
 
-          {/* Top-right (RTL leading): game title */}
-          <div className="overlay overlay-title">
-            <div className="title-pill">
-              <span className="game-title">{copy(session, "title")}</span>
-            </div>
-          </div>
-
-          {/* Top-center: progress dots */}
-          {!loading && diffCount > 0 && (
-            <div className="overlay overlay-progress">
-              <div className="progress-row">
-                {zones.map((z) => {
-                  const marker = revealedMarkers.find((m) => m.id === z.id);
-                  const isFound = marker?.type === "found";
-                  const isHinted = marker?.type === "hint";
-                  return (
-                    <div
-                      key={z.id}
-                      className={`progress-dot ${
-                        isFound ? "found" : isHinted ? "hinted" : ""
-                      }`}
-                    />
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Top-left (RTL trailing): score, music and help — always visible */}
-          <div className="overlay overlay-score">
-              <div className="score-pill" dir="ltr">
-                {diffCount > 0 && (
-                  <>
-                    <span className="score-value">{revealedCount}</span>
-                    <span className="score-sep">/</span>
-                    <span className="score-total">{diffCount}</span>
-                  </>
-                )}
-              </div>
-              <button
-                type="button"
-                className={`top-control music-toggle ${musicPlaying ? "is-on" : "is-off"}`}
-                onClick={toggleMusic}
-                title={copy(session, musicPlaying ? "musicOn" : "musicOff")}
-                aria-label={copy(session, musicPlaying ? "musicOn" : "musicOff")}
-                aria-pressed={musicPlaying}
-              >
-                <svg
-                  className="music-icon"
-                  viewBox="0 0 24 24"
-                  width="18"
-                  height="18"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z" />
-                </svg>
-                {!musicPlaying && (
-                  <span className="music-slash" aria-hidden="true" />
-                )}
-              </button>
+              DOM order is the English (LTR) order. The document's `dir` comes
+              from the translations file, so RTL mirrors the row for free and
+              Hebrew reads: quit, music, title, hint, help from the left. */}
+          <div className="top-bar">
+            <div className="top-group">
               <button
                 type="button"
                 className="top-control help-button"
@@ -180,13 +125,49 @@ export default function GamePage() {
                 aria-haspopup="dialog"
                 title={copy(session, "help")}
               >
-                <span aria-hidden="true">?</span>
+                <IoHelp aria-hidden="true" size={19} />
               </button>
+              <button
+                type="button"
+                className="top-control hint-button"
+                onClick={handleHint}
+                disabled={hintButtonDisabled}
+                aria-label={copy(session, "hint")}
+                title={copy(session, "hint")}
+              >
+                <IoBulb aria-hidden="true" size={18} />
+              </button>
+            </div>
+
+            <div className="title-pill">
+              <span className="game-title">{copy(session, "title")}</span>
+            </div>
+
+            <div className="top-group">
+              <button
+                type="button"
+                className={`top-control music-toggle ${musicPlaying ? "is-on" : "is-off"}`}
+                onClick={toggleMusic}
+                title={copy(session, musicPlaying ? "musicOn" : "musicOff")}
+                aria-label={copy(session, musicPlaying ? "musicOn" : "musicOff")}
+                aria-pressed={musicPlaying}
+              >
+                <IoMusicalNotes aria-hidden="true" size={18} />
+                {!musicPlaying && <span className="music-slash" aria-hidden="true" />}
+              </button>
+              {bridge.embedded && (
+                <button
+                  type="button"
+                  className="top-control quit-button"
+                  onClick={requestExit}
+                  aria-label={copy(session, "quit")}
+                  title={copy(session, "quit")}
+                >
+                  <FiX aria-hidden="true" size={19} />
+                </button>
+              )}
+            </div>
           </div>
-          {bridge.embedded && <button className="bridge-quit" type="button" onClick={requestExit}
-            aria-label={copy(session, "quit")} title={copy(session, "quit")}>
-            {copy(session, "quit")}
-          </button>}
 
           {/* Bottom center: spans the divider and both images */}
           {!loading && diffCount > 0 && (
@@ -210,17 +191,6 @@ export default function GamePage() {
             </div>
           )}
 
-          {/* Bottom-left (RTL trailing): hint FAB */}
-          <button
-            className="hint-fab"
-            onClick={handleHint}
-            disabled={hintButtonDisabled}
-            title={copy(session, "hint")}
-            aria-label={copy(session, "hint")}
-          >
-            <span className="hint-icon">💡</span>
-            {hintsLeft > 0 && <span className="hint-count">{hintsLeft}</span>}
-          </button>
         </div>
       </div>
 

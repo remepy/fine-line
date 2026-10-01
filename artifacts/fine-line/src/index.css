@@ -181,6 +181,34 @@ html, body, #root {
 
 /* ─── FLOATING OVERLAYS ────────────────── */
 
+/* One top strip: [help hint] [title] [music quit] in DOM order, which is the
+   English reading order. The document's dir comes from translations, so RTL
+   mirrors the whole row and Hebrew reads quit, music, title, hint, help from
+   the left — no per-language layout code. */
+.top-bar {
+  position: absolute;
+  z-index: 20;
+  top: max(8px, var(--safe-top));
+  left: max(10px, var(--safe-left));
+  right: max(10px, var(--safe-right));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.top-bar > * {
+  pointer-events: auto;
+}
+
+.top-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
 .overlay {
   position: absolute;
   z-index: 20;
@@ -194,18 +222,13 @@ html, body, #root {
   pointer-events: auto;
 }
 
-/* Top-right (RTL leading): title pill */
-.overlay-title {
-  top: max(8px, var(--safe-top));
-  right: max(10px, var(--safe-right));
-  flex-direction: row;
-}
-
 .title-pill {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
+  min-width: 0;
+  /* Deliberately tight: the capsule should be no taller than the glyphs. */
+  padding: 1px 12px;
+  line-height: 1.25;
   background: var(--overlay-bg);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -215,78 +238,15 @@ html, body, #root {
 
 .game-title {
   font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-weight: 800;
   color: var(--text-primary);
   letter-spacing: -0.2px;
 }
 
-/* Top-center: progress dots */
-.overlay-progress {
-  top: max(10px, var(--safe-top));
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.progress-row {
-  display: flex;
-  gap: 6px;
-  flex-direction: row-reverse;
-  padding: 6px 10px;
-  background: var(--overlay-bg);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid var(--overlay-border);
-  border-radius: 999px;
-}
-
-.progress-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.22);
-  transition: background 0.3s ease, transform 0.2s ease;
-}
-
-.progress-dot.found {
-  background: var(--found-dot);
-  transform: scale(1.15);
-  box-shadow: none;
-}
-
-.progress-dot.hinted {
-  background: var(--hint-dot);
-  transform: scale(1.1);
-}
-
-/* Top-left (RTL trailing): score, music and help */
-.overlay-score {
-  top: max(8px, var(--safe-top));
-  left: max(10px, var(--safe-left));
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.help-button {
-  font-family: inherit;
-  font-size: 20px;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.help-button:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
-
-.score-pill {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-  padding: 6px 12px;
-  background: var(--overlay-bg);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid var(--overlay-border);
-  border-radius: 999px;
-}
+.top-control:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 
 /* Shared top-strip controls: audio toggle and tutorial help */
 .top-control {
@@ -318,6 +278,7 @@ html, body, #root {
 }
 
 .music-toggle.is-on,
+.quit-button,
 .help-button {
   color: #f1f5f9;
   background: rgba(255, 255, 255, 0.14);
@@ -327,6 +288,20 @@ html, body, #root {
 
 .music-toggle.is-off {
   color: rgba(226, 232, 240, 0.55);
+}
+
+/* The hint keeps the amber it had as a floating button: it is the one
+   control in the strip the participant is meant to reach for. Declared
+   after .top-control so it is not overridden by it. */
+.hint-button {
+  color: #78350f;
+  background: rgba(245, 158, 11, 0.95);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.hint-button:disabled {
+  opacity: 0.35;
+  cursor: default;
 }
 
 .music-icon {
@@ -364,62 +339,6 @@ html, body, #root {
   color: var(--text-secondary);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-}
-
-/* Bottom-left (RTL trailing): hint FAB — easy thumb reach */
-.hint-fab {
-  position: absolute;
-  z-index: 20;
-  bottom: 8px;
-  left: 8px;
-  width: 56px;
-  height: 56px;
-  background: rgba(245, 158, 11, 0.92);
-  border: 2px solid rgba(255, 255, 255, 0.25);
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45),
-    0 0 0 4px rgba(245, 158, 11, 0.12);
-  transition: transform 0.1s, background 0.2s, opacity 0.2s;
-}
-
-.hint-fab:not(:disabled):hover {
-  background: rgba(245, 158, 11, 1);
-}
-
-.hint-fab:not(:disabled):active {
-  transform: scale(0.92);
-}
-
-.hint-fab:disabled {
-  opacity: 0.35;
-  cursor: default;
-  box-shadow: none;
-}
-
-.hint-icon {
-  font-size: 26px;
-  line-height: 1;
-}
-
-.hint-count {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  background: white;
-  color: #b45309;
-  border-radius: 50%;
-  width: 22px;
-  height: 22px;
-  font-size: 12px;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
 }
 
 /* Bottom center: a compact, non-interactive prompt over the image divider */
@@ -697,20 +616,6 @@ html, body, #root {
   text-decoration: underline;
   font-size: 16px;
   padding: 10px;
-  cursor: pointer;
-}
-
-.bridge-quit {
-  position: absolute;
-  z-index: 25;
-  bottom: max(12px, var(--safe-bottom));
-  right: max(12px, var(--safe-right));
-  border: 1px solid var(--overlay-border);
-  border-radius: 12px;
-  background: var(--overlay-bg);
-  color: var(--text-primary);
-  padding: 8px 15px;
-  font-size: 14px;
   cursor: pointer;
 }
 
