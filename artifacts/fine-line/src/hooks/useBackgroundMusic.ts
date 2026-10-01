@@ -73,9 +73,12 @@ export function useBackgroundMusic(enabled = true) {
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    if (!enabled) {
+    // Either reason to be silent pauses it: the app interrupting us, or the
+    // participant switching it off. Testing only `enabled` here left the
+    // toggle flipping its icon while the audio kept playing.
+    if (!enabled || !wantsMusic) {
       audio.pause();
-    } else if (wantsMusic) {
+    } else {
       void audio.play().then(
         () => { hasStartedRef.current = true; },
         () => { /* still waiting on a gesture */ },
