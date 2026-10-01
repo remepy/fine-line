@@ -14,6 +14,7 @@ export function InstructionSlide({ onStart, onExit, session }: Props) {
           <li>{copy(session, "instruction1")}</li>
           <li>{copy(session, "instruction2")}</li>
           <li>{copy(session, "instruction3")}</li>
+          <li>{copy(session, "instruction4")}</li>
         </ul>
 
         <button className="instr-start-btn" onClick={onStart} autoFocus>

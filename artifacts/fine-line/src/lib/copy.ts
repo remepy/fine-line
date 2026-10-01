@@ -5,7 +5,7 @@ export const copyKeys = [
   "title", "loading", "original", "modified", "differences",
   "hint", "help", "musicOn", "musicOff", "quit",
   "success", "complete", "next", "instruction1", "instruction2",
-  "instruction3", "start", "rotate", "paused",
+  "instruction3", "instruction4", "start", "rotate", "paused",
 ] as const;
 
 export type CopyKey = typeof copyKeys[number];
