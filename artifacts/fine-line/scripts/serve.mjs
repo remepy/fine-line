@@ -32,7 +32,9 @@ import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { GAME_ID, LANGUAGES } from "./game.mjs";
 
-const root = path.resolve(import.meta.dirname, "..", "dist", "languages");
+// Mirrors the output directory build-languages.mjs writes to, which is also
+// what push-to-aws-dev-pd.sh syncs to S3 under cyan/games/.
+const root = path.resolve(import.meta.dirname, "..", "dist", GAME_ID);
 const port = Number(process.argv[2] ?? 4173);
 const prefix = `/games/${GAME_ID}/`;
 
