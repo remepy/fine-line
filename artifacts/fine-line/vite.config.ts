@@ -59,10 +59,9 @@ if (rawPort && (Number.isNaN(port) || port <= 0)) {
 // BASE_PATH controls the asset URL prefix in the built HTML. Each language
 // build sets it to that language's own S3 prefix so every asset and
 // ./translations.json resolve relative to the page.
-const basePath = process.env.BASE_PATH ?? "/";
 
 export default defineConfig({
-  base: basePath,
+  base: "./",
   plugins: [react(), tailwindcss(), translations()],
   resolve: {
     alias: {
